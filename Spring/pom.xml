@@ -68,7 +68,7 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+    
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -86,6 +86,7 @@
             <version>0.13.0</version>
             <scope>runtime</scope>
         </dependency>
+
 	</dependencies>
 
 	<build>
