@@ -36,32 +36,11 @@ public class SecurityConfiguration {
 
         securityPlan.csrf(AbstractHttpConfigurer::disable);
 
-        securityPlan.authorizeHttpRequests(request -> request
-
-                // Public endpoints
-                .requestMatchers("/auth/token", "/user/register").permitAll()
-
-                // USER specific
-                .requestMatchers("/bill/pending-bills").hasRole("USER")
-
-                // ADMIN specific
-                .requestMatchers("/apartment/**").hasRole("ADMIN")
-                .requestMatchers("/bill/**").hasRole("ADMIN")
-                .requestMatchers("/block/**").hasRole("ADMIN")
-                .requestMatchers("/dashboard/**").hasRole("ADMIN")
-                .requestMatchers("/flat/**").hasRole("ADMIN")
-                .requestMatchers("/floor/**").hasRole("ADMIN")
-                .requestMatchers("/management/**").hasRole("ADMIN")
-                .requestMatchers("/threads/**").hasRole("ADMIN")
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                // Shared access
-                .requestMatchers("/payment/**", "/tenant/**")
-                .hasAnyRole("USER", "ADMIN")
-
-                // Everything else
-                .anyRequest().authenticated()
-        );
+//        securityPlan.authorizeHttpRequests(request -> request
+//
+//                // Everything else
+////                .anyRequest().authenticated()
+//        );
 
         securityPlan.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
