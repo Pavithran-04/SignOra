@@ -1,4 +1,4 @@
-package com.application.signora.dto.request.user;
+package com.application.signora.dto.request;
 
 import lombok.Data;
 

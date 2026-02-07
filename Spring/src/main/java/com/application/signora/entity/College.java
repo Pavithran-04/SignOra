@@ -6,10 +6,10 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Staff extends BaseEntity {
+public class College extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,12 +17,13 @@ public class Staff extends BaseEntity {
 
     private String name;
 
-    private String empId;
+    private String address;
 
-    private String designation;
+    @ManyToOne
+    @JoinColumn(name = "principal_id")
+    private Staff principal;
 
-    @OneToOne
-    @JoinColumn(name = "registered_user_id")
-    private User user;
-
+//    @ManyToOne
+//    @JoinColumn(name = "admin_id")
+//    private Admin admin;
 }

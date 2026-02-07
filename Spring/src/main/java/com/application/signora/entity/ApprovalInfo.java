@@ -6,23 +6,21 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Staff extends BaseEntity {
+public class ApprovalInfo extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private Boolean needHodSign;
 
-    private String empId;
-
-    private String designation;
+    private Boolean needPrincipalSign;
 
     @OneToOne
-    @JoinColumn(name = "registered_user_id")
-    private User user;
+    @JoinColumn(name = "request_id")
+    private RequestDetails requestDetails;
 
 }

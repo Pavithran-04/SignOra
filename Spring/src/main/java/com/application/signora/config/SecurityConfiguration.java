@@ -36,11 +36,11 @@ public class SecurityConfiguration {
 
         securityPlan.csrf(AbstractHttpConfigurer::disable);
 
-//        securityPlan.authorizeHttpRequests(request -> request
-//
-//                // Everything else
-////                .anyRequest().authenticated()
-//        );
+        securityPlan.authorizeHttpRequests(request -> request
+                .requestMatchers("/auth/token", "/admin/user/register", "/login").permitAll()
+                .requestMatchers("/request").hasAnyRole("STUDENT")
+                .anyRequest().authenticated()
+        );
 
         securityPlan.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
