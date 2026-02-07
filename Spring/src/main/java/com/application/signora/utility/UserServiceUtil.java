@@ -1,5 +1,6 @@
 package com.application.signora.utility;
 
+import com.application.signora.dto.request.LoginUserRequest;
 import com.application.signora.entity.enums.UserType;
 import com.application.signora.repository.StaffRepository;
 import com.application.signora.repository.StudentRepository;
@@ -32,12 +33,14 @@ public class UserServiceUtil {
     }
 
     public Boolean isStaff(String role) {
-        return role.equals(UserType.STAFF.toString());
+        return role.equalsIgnoreCase(UserType.STAFF.toString());
     }
 
     public Boolean isStudent(String role) {
-        return role.equals(UserType.STUDENT.toString());
+        return role.equalsIgnoreCase(UserType.STUDENT.toString());
     }
 
-
+    public boolean isAuthenticatedUser(LoginUserRequest loginUserRequest) {
+        return userRepository.existsByUsernameAndPassword(loginUserRequest.getUsername(), loginUserRequest.getPassword());
+    }
 }

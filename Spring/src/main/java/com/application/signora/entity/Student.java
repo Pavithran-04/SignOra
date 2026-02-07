@@ -4,6 +4,7 @@ package com.application.signora.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @AllArgsConstructor
@@ -20,13 +21,11 @@ public class Student extends BaseEntity {
     private String rollNo;
 
     @ManyToOne
-    @JoinColumn(name = "department_id")
-    private Department department;
+    @JoinColumn(name = "batch_id")
+    private BatchDetails batchDetails;
 
-    private Integer startYear;
-
-    private Integer endYear;
-
-    private Long registeredUserId;
+    @OneToOne
+    @JoinColumn(name = "registered_user_id")
+    private User user;
 
 }

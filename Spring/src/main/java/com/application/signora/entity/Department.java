@@ -1,9 +1,6 @@
 package com.application.signora.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import tools.jackson.core.ObjectReadContext;
 
@@ -21,6 +18,10 @@ public class Department extends BaseEntity {
 
     private String name;
 
-    private String section;
+    @ManyToOne
+    @JoinColumn(name = "college_id")
+    private College college;
+
+
 
 }
