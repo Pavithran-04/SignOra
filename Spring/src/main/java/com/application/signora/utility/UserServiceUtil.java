@@ -1,11 +1,16 @@
 package com.application.signora.utility;
 
+import com.application.signora.config.CustomUserDetails;
 import com.application.signora.dto.request.LoginUserRequest;
+import com.application.signora.entity.Admin;
+import com.application.signora.entity.User;
 import com.application.signora.entity.enums.UserType;
-import com.application.signora.repository.StaffRepository;
+import com.application.signora.repository.AdminRepository;
+import com.application.signora.repository.CollegeAuthorityRepository;
 import com.application.signora.repository.StudentRepository;
 import com.application.signora.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,14 +23,17 @@ public class UserServiceUtil {
     StudentRepository studentRepository;
 
     @Autowired
-    StaffRepository staffRepository;
+    AdminRepository adminRepository;
+
+    @Autowired
+    CollegeAuthorityRepository collegeAuthorityRepository;
 
     public Boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
 
     public Boolean existsByEmpId(String empId) {
-        return staffRepository.findByEmpId(empId).isPresent();
+        return collegeAuthorityRepository.findByEmpId(empId).isPresent();
     }
 
     public Boolean existsByRollNo(String rollNo) {
@@ -33,7 +41,7 @@ public class UserServiceUtil {
     }
 
     public Boolean isStaff(String role) {
-        return role.equalsIgnoreCase(UserType.STAFF.toString());
+        return role.equalsIgnoreCase(UserType.STAFF.toString()) || role.equalsIgnoreCase(UserType.PRINCIPAL.toString());
     }
 
     public Boolean isStudent(String role) {
@@ -42,5 +50,14 @@ public class UserServiceUtil {
 
     public boolean isAuthenticatedUser(LoginUserRequest loginUserRequest) {
         return userRepository.existsByUsernameAndPassword(loginUserRequest.getUsername(), loginUserRequest.getPassword());
+    }
+
+    public User getCurrentLoggedUser() {
+        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findByUsername(user.getUsername()).get();
+    }
+
+    public Admin getAdminByRegisteredUserId(Long registeredUserId) {
+        return adminRepository.findByRegisteredUserId(registeredUserId);
     }
 }

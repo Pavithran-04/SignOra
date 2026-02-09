@@ -9,7 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Staff extends BaseEntity {
+@Table(name = "COLLEGE_AUTHORITIES")
+public class CollegeAuthority extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

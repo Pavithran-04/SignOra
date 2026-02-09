@@ -1,5 +1,6 @@
 package com.application.signora.entity;
 
+import com.application.signora.entity.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,9 +26,8 @@ public class BatchDetails extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "faculty_id")
-    private Staff faculty;
+    private CollegeAuthority faculty;
 
-    @ManyToOne
-    @JoinColumn(name = "hod_id")
-    private Staff hod;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 }

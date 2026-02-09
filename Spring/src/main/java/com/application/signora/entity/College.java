@@ -19,11 +19,13 @@ public class College extends BaseEntity {
 
     private String address;
 
-    @ManyToOne
-    @JoinColumn(name = "principal_id")
-    private Staff principal;
+    private String code;
 
-//    @ManyToOne
-//    @JoinColumn(name = "admin_id")
-//    private Admin admin;
+    @OneToOne
+    @JoinColumn(name = "principal_id")
+    private CollegeAuthority principal;
+
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
 }
