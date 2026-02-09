@@ -1,5 +1,5 @@
 package com.application.signora.entity.enums;
 
 public enum UserType {
-    ADMIN, STAFF, STUDENT;
+    ADMIN, STAFF, STUDENT, PRINCIPAL;
 }

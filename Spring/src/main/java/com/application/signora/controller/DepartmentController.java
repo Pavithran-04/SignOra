@@ -1,6 +1,9 @@
 package com.application.signora.controller;
 
+<<<<<<< Updated upstream
 import org.springframework.web.bind.annotation.CrossOrigin;
+=======
+>>>>>>> Stashed changes
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,7 +16,7 @@ import com.application.signora.service.DepartmentService;
 public class DepartmentController {
 
 //    @Autowired
-    DepartmentService departmentService;
+//    DepartmentService departmentService;
 //
 //    @PostMapping("/department")
 //    public void createDepartment(CreateDepartmentRequest createDepartmentRequest) {

@@ -44,24 +44,6 @@ public class StudentServiceImpl implements StudentService {
     @Transactional
     public void createStudent(CreateStudentRequest request) {
 
-//        Department department = departmentRepository.findByName(request.getDepartmentName())
-//                .orElseThrow(() -> new RuntimeException("Kindly enter the valid department name"));
-//
-//        if(studentRepository.existsByRollNo(request.getRollNo())) {
-//            throw new RuntimeException("Roll number already exists");
-//        }
-//
-//        if(!studentServiceUtil.hasValidStartAndEndYear(request.getStartYear(), request.getEndYear())) {
-//            throw new RuntimeException("Kindly provide the valid years");
-//        }
-//
-//        studentRepository.save(Student.builder()
-//                .name(request.getName())
-//
-//                .startYear(request.getStartYear())
-//                .endYear(request.getEndYear())
-//                .rollNo(request.getRollNo())
-//                .build());
     }
 
     @Override
@@ -93,16 +75,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void viewForms(String role, String status) {
-//        Long studentId = 1L;
-//
-//        List<RequestDetails> requestForms =
-//                requestDetailsRepository.findByStudentId(studentId);
-//
-//        List<RequestDetails> response = requestForms.stream()
-//                .map(studentServiceUtil::convertViewFormDTO)
-//                .collect(Collectors.toList());
-//
-//        return response;
+
     }
 
 }

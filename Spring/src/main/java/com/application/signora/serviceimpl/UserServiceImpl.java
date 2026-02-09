@@ -5,7 +5,8 @@ import com.application.signora.dto.request.RegisterUserRequest;
 import com.application.signora.dto.response.user.LoginResponse;
 import com.application.signora.dto.response.user.RegisterUserResponse;
 import com.application.signora.entity.*;
-import com.application.signora.repository.StaffRepository;
+import com.application.signora.repository.AdminRepository;
+import com.application.signora.repository.CollegeAuthorityRepository;
 import com.application.signora.repository.StudentRepository;
 import com.application.signora.repository.UserRepository;
 import com.application.signora.service.UserService;
@@ -34,7 +35,8 @@ public class UserServiceImpl implements UserService {
     StudentRepository studentRepository;
 
     @Autowired
-    StaffRepository staffRepository;
+    CollegeAuthorityRepository collegeAuthorityRepository;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -55,13 +57,13 @@ public class UserServiceImpl implements UserService {
         );
 
         if(userServiceUtil.isStaff(request.getRole())) {
-            Staff staff = staffRepository.findByEmpId(request.getIdentifier())
+            CollegeAuthority staff = collegeAuthorityRepository.findByEmpId(request.getIdentifier())
                     .orElseThrow(() -> new RuntimeException("Invalid employee id"));
             if(!Objects.isNull(staff.getUser()))
                 throw new RuntimeException(request.getIdentifier() + " already has been registered");
             staff.setUser(savedUser);
-            staffRepository.save(staff);
-        } else {
+            collegeAuthorityRepository.save(staff);
+        } else if (userServiceUtil.isStudent(request.getRole())) {
             Student student = studentRepository.findByRollNo(request.getIdentifier())
                     .orElseThrow(() -> new RuntimeException("Invalid roll number"));
             if(!Objects.isNull(student.getUser()))

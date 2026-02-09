@@ -39,6 +39,7 @@ public class SecurityConfiguration {
         securityPlan.authorizeHttpRequests(request -> request
                 .requestMatchers("/auth/token", "/admin/user/register", "/login").permitAll()
                 .requestMatchers("/request").hasAnyRole("STUDENT")
+                .requestMatchers("/admin").hasAnyRole("ADMIN")
                 .anyRequest().authenticated()
         );
 
