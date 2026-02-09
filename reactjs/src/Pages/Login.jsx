@@ -1,16 +1,45 @@
-import { useState } from "react";
-import login from "../Image/login.jpeg";
+import { useState, useEffect } from "react";
+import useLogin from "../hooks/useLogin";
+import { useAuthToken } from "../hooks/useAuthToken";
+import loginImage from "../Image/loginImage.jpeg";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [credentials, setCredentials] = useState({
-    userName: "",
+    username: "",
     password: "",
   });
+  const [loginResponse, setLoginResponse] = useState(null);
 
-  const onSubmit = () => {
-    // setCredentials({ ...credentials, [e.target.name]: e.target.value });
-    console.log(credentials);
+  const { isLoading, errorMsg, login } = useLogin();
+  const getAccessToken = useAuthToken();
+  const navigator = useNavigate();
+
+  const onSubmit = async () => {
+    const response = await login(credentials);
+    setLoginResponse(response);
+    if (response?.status !== "Bad request") {
+      await getAccessToken(credentials);
+    }
+    console.log("responnmmnse", response);
   };
+
+  useEffect(() => {
+    if (errorMsg !== "") {
+      return;
+    }
+    console.log("useeffect");
+    if (loginResponse !== undefined || loginResponse !== null) {
+      console.log("login", loginResponse);
+      if (loginResponse?.role?.toLowerCase() === "student") {
+        console.log("student");
+        navigator("/student");
+      } else if (loginResponse?.role?.toLowerCase() === "staff") {
+        console.log("staff");
+      }
+    }
+  }, [loginResponse]);
+
   return (
     <div
       className="d-flex justify-content-center align-items-center"
@@ -22,23 +51,24 @@ function Login() {
       >
         <div className="d-flex align-items-center justify-content-center px-4">
           <img
-            src={login}
+            src={loginImage}
             alt="Login"
             style={{ width: "350px", height: "350px", objectFit: "contain" }}
           />
         </div>
 
         <div className="py-5 px-4 w-100">
+          <div className="ErrorTest">{errorMsg}</div>
           <div className="mb-3">
             <label className="form-label">Username</label>
             <input
               type="text"
               className="form-control"
               placeholder="Enter username"
-              name="userName"
+              name="username"
               onChange={(e) =>
                 setCredentials({
-                  //   ...credentials,
+                  ...credentials,
                   [e.target.name]: e.target.value,
                 })
               }
