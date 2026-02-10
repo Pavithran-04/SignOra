@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function RequestForm() {
+function RequestForm({ showModal, setShowModal }) {
   const [formData, setFormData] = useState({
     subject: "",
     requestBody: "",
@@ -17,10 +17,16 @@ function RequestForm() {
 
   const handleSubmit = () => {
     console.log("Form Data:", formData);
+    setShowModal(false);
+  };
+
+  const onClose = () => {
+    setShowModal(false);
   };
 
   return (
-    <div className="modal fade" tabIndex="-1">
+    <div className="modal show d-block" tabIndex="-1">
+      {console.log("lskdnfkj")}
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
@@ -30,6 +36,7 @@ function RequestForm() {
               className="btn-close"
               data-bs-dismiss="modal"
               aria-label="Close"
+              onclick={onClose}
             />
           </div>
 
@@ -63,6 +70,7 @@ function RequestForm() {
               type="button"
               className="btn btn-secondary"
               data-bs-dismiss="modal"
+              onClick={onClose}
             >
               Close
             </button>
@@ -71,7 +79,7 @@ function RequestForm() {
               className="btn btn-primary"
               onClick={handleSubmit}
             >
-              Save changes
+              Submit
             </button>
           </div>
         </div>
