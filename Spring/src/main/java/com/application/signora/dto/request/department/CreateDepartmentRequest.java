@@ -7,4 +7,6 @@ public class CreateDepartmentRequest {
 
     private String name;
 
+    private Long collegeId;
+
 }
