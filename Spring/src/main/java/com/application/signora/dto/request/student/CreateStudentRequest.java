@@ -5,14 +5,16 @@ import lombok.Data;
 @Data
 public class CreateStudentRequest {
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
 
     private String rollNo;
 
-    private String departmentName;
+    private Long batchId;
 
-    private Integer startYear;
+    private String username;
 
-    private Integer endYear;
+    private String password;
 
 }

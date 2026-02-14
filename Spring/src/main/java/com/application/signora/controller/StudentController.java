@@ -1,5 +1,6 @@
 package com.application.signora.controller;
 
+import com.application.signora.dto.response.student.CreateStudentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +21,8 @@ public class StudentController {
     StudentService studentService;
 
     @PostMapping("/admin/student")
-    public void createStudent(@RequestBody CreateStudentRequest createStudentRequest) {
-        studentService.createStudent(createStudentRequest);
+    public CreateStudentResponse createStudent(@RequestBody CreateStudentRequest createStudentRequest) {
+        return studentService.createStudent(createStudentRequest);
     }
 
     @PostMapping("/request")
