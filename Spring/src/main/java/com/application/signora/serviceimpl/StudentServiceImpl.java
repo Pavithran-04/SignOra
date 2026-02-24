@@ -2,8 +2,12 @@ package com.application.signora.serviceimpl;
 
 import com.application.signora.dto.request.student.CreateStudentRequest;
 import com.application.signora.dto.request.student.FormRequest;
+import com.application.signora.dto.response.batchdetails.BatchDetailsResponse;
+import com.application.signora.dto.response.college.CollegeResponse;
+import com.application.signora.dto.response.department.DepartmentResponse;
 import com.application.signora.dto.response.student.CreateStudentResponse;
 import com.application.signora.dto.response.student.FormResponse;
+import com.application.signora.dto.response.student.StudentResponse;
 import com.application.signora.entity.*;
 import com.application.signora.entity.enums.RequestStatus;
 import com.application.signora.entity.enums.UserType;
@@ -105,7 +109,7 @@ public class StudentServiceImpl implements StudentService {
                 .requestBody(formRequest.getRequestBody())
                 .approvalInfo(approvalInfo)
                 .certificateInfo(certificateInfo)
-//                .student(studentServiceUtil.getCurrentLoggedUser())
+                .student(studentServiceUtil.getCurrentLoggedUser())
                 .status(RequestStatus.MOVED_TO_FACULTY)
                 .build();
 
@@ -118,8 +122,45 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void viewForms(String role, String status) {
+    public StudentResponse getStudentById(Long studentId) {
 
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Invalid student id"));
+
+        College college = student.getBatchDetails()
+                .getDepartment()
+                .getCollege();
+
+        CollegeResponse collegeResponse = CollegeResponse.builder()
+                .id(college.getId())
+                .name(college.getName())
+                .build();
+
+        Department department = student.getBatchDetails()
+                .getDepartment();
+
+        DepartmentResponse departmentResponse = DepartmentResponse.builder()
+                .id(department.getId())
+                .name(department.getName())
+                .college(collegeResponse)
+                .build();
+
+        BatchDetails batch = student.getBatchDetails();
+
+        BatchDetailsResponse batchResponse = BatchDetailsResponse.builder()
+                .id(batch.getId())
+                .startYear(batch.getStartYear())
+                .endYear(batch.getEndYear())
+                .department(departmentResponse)
+                .build();
+
+        return StudentResponse.builder()
+                .id(student.getId())
+                .firstName(student.getFirstName())
+                .lastName(student.getLastName())
+                .rollNo(student.getRollNo())
+                .batchDetails(batchResponse)
+                .build();
     }
 
 }
