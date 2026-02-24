@@ -3,7 +3,7 @@ package com.application.signora.dto.request.staff;
 import lombok.Data;
 
 @Data
-public class CreateStaffRequest {
+public class CreateAuthorityRequest {
 
     private String name;
 
