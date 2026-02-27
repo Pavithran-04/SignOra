@@ -1,11 +1,11 @@
 package com.application.signora.serviceimpl;
 
 import com.application.signora.dto.response.student.ViewFormsResponse;
-import com.application.signora.entity.CollegeAuthority;
+import com.application.signora.entity.Authority;
 import com.application.signora.entity.RequestDetails;
 import com.application.signora.entity.Student;
 import com.application.signora.entity.enums.UserType;
-import com.application.signora.repository.CollegeAuthorityRepository;
+import com.application.signora.repository.AuthorityRepository;
 import com.application.signora.repository.RequestDetailsRepository;
 import com.application.signora.repository.StudentRepository;
 import com.application.signora.service.FormService;
@@ -25,7 +25,7 @@ public class FormServiceImpl implements FormService {
     StudentRepository studentRepository;
 
     @Autowired
-    CollegeAuthorityRepository collegeAuthorityRepository;
+    AuthorityRepository authorityRepository;
 
     @Autowired
     FormServiceUtil formServiceUtil;
@@ -52,8 +52,8 @@ public class FormServiceImpl implements FormService {
     }
 
     public ViewFormsResponse getFormsByAuthority(Long identifier) {
-        CollegeAuthority collegeAuthority = collegeAuthorityRepository.findByUserId(identifier).get();
-
+//        CollegeAuthority collegeAuthority = authorityRepository.findByUserId(identifier).get();
+        return null;
     }
 
 }

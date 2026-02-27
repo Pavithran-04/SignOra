@@ -1,20 +1,25 @@
 package com.application.signora.dto.request.staff;
 
-import lombok.Data;
+import lombok.*;
 
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class CreateAuthorityRequest {
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
 
     private String employeeId;
 
-    private String departmentName;
+    private String designation;
 
-    private Boolean isHod;
+    private Long collegeId;
 
-    private Boolean isFaculty;
+    private Long departmentId;
 
-    private Boolean isPrincipal;
-
+    private Long batchId;
 }

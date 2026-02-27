@@ -23,7 +23,7 @@ public class College extends BaseEntity {
 
     @OneToOne
     @JoinColumn(name = "principal_id")
-    private CollegeAuthority principal;
+    private Authority principal;
 
     @ManyToOne
     @JoinColumn(name = "admin_id")

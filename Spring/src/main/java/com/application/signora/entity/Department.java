@@ -24,6 +24,6 @@ public class Department extends BaseEntity {
 
     @OneToOne
     @JoinColumn(name = "hod_id")
-    private CollegeAuthority hod;
+    private Authority hod;
 
 }
