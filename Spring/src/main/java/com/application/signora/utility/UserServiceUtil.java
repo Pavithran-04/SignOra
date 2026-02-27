@@ -6,7 +6,7 @@ import com.application.signora.entity.Admin;
 import com.application.signora.entity.User;
 import com.application.signora.entity.enums.UserType;
 import com.application.signora.repository.AdminRepository;
-import com.application.signora.repository.CollegeAuthorityRepository;
+import com.application.signora.repository.AuthorityRepository;
 import com.application.signora.repository.StudentRepository;
 import com.application.signora.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +26,14 @@ public class UserServiceUtil {
     AdminRepository adminRepository;
 
     @Autowired
-    CollegeAuthorityRepository collegeAuthorityRepository;
+    AuthorityRepository authorityRepository;
 
     public Boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
 
     public Boolean existsByEmpId(String empId) {
-        return collegeAuthorityRepository.findByEmpId(empId).isPresent();
+        return authorityRepository.findByEmpId(empId).isPresent();
     }
 
     public Boolean existsByRollNo(String rollNo) {

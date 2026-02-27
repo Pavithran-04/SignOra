@@ -26,7 +26,7 @@ public class BatchDetails extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "faculty_id")
-    private CollegeAuthority faculty;
+    private Authority faculty;
 
     @Enumerated(EnumType.STRING)
     private Status status;
