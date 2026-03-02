@@ -28,9 +28,9 @@ public class StudentServiceUtil {
     public void convertViewFormDTO(RequestDetails requestDetails) {
     }
 
-//    public Student getCurrentLoggedUser() {
-//        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        User loggedUserDetails = userRepository.findByUsername(user.getUsername()).get();
-//        return studentRepository.findByUserId(loggedUserDetails.getId()).get();
-//    }
+    public Student getCurrentLoggedUser() {
+        CustomUserDetails user = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User loggedUserDetails = userRepository.findByUsername(user.getUsername()).get();
+        return studentRepository.findByUserId(loggedUserDetails.getId()).get();
+    }
 }

@@ -1,5 +1,6 @@
 package com.application.signora.controller;
 
+import com.application.signora.dto.response.requestforms.RequestFormInfo;
 import com.application.signora.dto.response.student.ViewFormsResponse;
 import com.application.signora.service.FormService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,11 @@ public class FormController {
     @GetMapping("/forms")
     public ViewFormsResponse viewForms(@RequestParam String role, @RequestParam Long identifier) {
         return formService.viewForms(role, identifier);
+    }
+
+    @GetMapping("/forms/{formId}")
+    public RequestFormInfo getForm(@PathVariable("formId") Long formId) {
+        return formService.getForm(formId);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.application.signora.serviceimpl;
 
+import com.application.signora.dto.response.requestforms.RequestFormInfo;
 import com.application.signora.dto.response.student.ViewFormsResponse;
 import com.application.signora.entity.Authority;
 import com.application.signora.entity.RequestDetails;
@@ -10,10 +11,12 @@ import com.application.signora.repository.RequestDetailsRepository;
 import com.application.signora.repository.StudentRepository;
 import com.application.signora.service.FormService;
 import com.application.signora.utility.FormServiceUtil;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 public class FormServiceImpl implements FormService {
@@ -42,6 +45,18 @@ public class FormServiceImpl implements FormService {
         }
 
         return null;
+    }
+
+    @Override
+    public RequestFormInfo getForm(Long formId) {
+        RequestDetails requestDetails = requestDetailsRepository.findById(formId)
+                .orElseThrow(() -> new RuntimeException("Invalid form id"));
+        return RequestFormInfo.builder()
+                .id(requestDetails.getId())
+                .requestTitle(requestDetails.getRequestTitle())
+                .requestBody(requestDetails.getRequestBody())
+                .status(requestDetails.getStatus())
+                .build();
     }
 
     public ViewFormsResponse getFormsByStudent(Long identifier) {
