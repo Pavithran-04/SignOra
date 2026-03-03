@@ -41,7 +41,8 @@ public class UserServiceUtil {
     }
 
     public Boolean isStaff(String role) {
-        return role.equalsIgnoreCase(UserType.STAFF.toString()) || role.equalsIgnoreCase(UserType.PRINCIPAL.toString());
+        return role.equalsIgnoreCase(UserType.FACULTY.toString()) || role.equalsIgnoreCase(UserType.PRINCIPAL.toString())
+                || role.equalsIgnoreCase(UserType.HOD.toString());
     }
 
     public Boolean isStudent(String role) {

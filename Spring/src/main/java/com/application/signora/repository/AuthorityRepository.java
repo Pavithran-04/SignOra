@@ -12,5 +12,5 @@ public interface AuthorityRepository extends JpaRepository<Authority, Long> {
 
     boolean existsByEmpId(String employeeId);
 
-    Optional<Authority> findByUserId(Long identifier);
+    Optional<Authority> findByUser_Id(Long registeredUserId);
 }

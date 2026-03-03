@@ -16,4 +16,6 @@ public class ViewFormsResponse extends DefaultResponseEntity {
 
     private List<RequestFormInfo> requestForms;
 
+    private Integer totalForms;
+
 }
