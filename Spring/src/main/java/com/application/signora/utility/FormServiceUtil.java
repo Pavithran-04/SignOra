@@ -25,6 +25,7 @@ public class FormServiceUtil {
                 }).toList();
         return ViewFormsResponse.builder()
                 .requestForms(forms)
+                .totalForms(forms.size())
                 .build();
     }
 }

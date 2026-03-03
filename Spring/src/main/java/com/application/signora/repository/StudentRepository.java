@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,12 +15,14 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     boolean existsByRollNo(String rollNo);
 
-//    @Query(name = """
-//                SELECT *
-//                FROM STUDENT
-//                WHERE REGISTERED_USER_ID = :REGISTERED_USER_ID
-//            """, nativeQuery = true)
-//    Optional<Student> findByUserId(@Param("REGISTERED_USER_ID") Long registeredUserId);
-
     Optional<Student> findByUserId(Long registeredUserId);
+
+    @Query(value = """
+                SELECT
+                    *
+                FROM STUDENT
+                WHERE BATCH_ID = :BATCH_ID
+            """, nativeQuery = true)
+    List<Student> findByBatchId(@Param("BATCH_ID") Long batchId);
+
 }
