@@ -1,6 +1,7 @@
 package com.application.signora.serviceimpl;
 
 import com.application.signora.dto.response.requestforms.RequestFormInfo;
+import com.application.signora.dto.response.projections.RequestFormInfoProjection;
 import com.application.signora.dto.response.student.ViewFormsResponse;
 import com.application.signora.entity.Authority;
 import com.application.signora.entity.BatchDetails;
@@ -14,6 +15,7 @@ import com.application.signora.repository.StudentRepository;
 import com.application.signora.service.FormService;
 import com.application.signora.utility.FormServiceUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.RequestInfo;
 import org.hibernate.engine.jdbc.batch.spi.Batch;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +57,7 @@ public class FormServiceImpl implements FormService {
         } else if (role.equalsIgnoreCase(UserType.HOD.toString())) {
             return getFormsByHod(identifier);
         } else if (role.equalsIgnoreCase(UserType.PRINCIPAL.toString())) {
-            return null;
+            return getFormsByPrincipal(identifier);
         } else {
             throw new RuntimeException("Invalid role");
         }
@@ -79,23 +81,61 @@ public class FormServiceImpl implements FormService {
 
     private ViewFormsResponse getFormsByFaculty(Long identifier) {
         Authority authority = authorityRepository.findByUser_Id(identifier).orElseThrow(() -> new RuntimeException("Faculty not found"));
-        List<RequestDetails> requestForms = getFormsByBatchDetails(batchDetailsRepository.findByFacultyId(authority.getId()));
-        return formServiceUtil.convertFormsToResponse(requestForms);
+
+        List<RequestFormInfo> requestForms = requestDetailsRepository
+                .getFormsByFaculty(authority.getUser().getId())
+                .stream()
+                .map(p -> RequestFormInfo.builder()
+                        .id(p.getId())
+                        .requestBody(p.getRequestBody())
+                        .requestTitle(p.getRequestTitle())
+                        .status(p.getStatus())
+                        .build())
+                .toList();
+
+        return ViewFormsResponse.builder()
+                .requestForms(requestForms)
+                .totalForms(requestForms.size())
+                .build();
     }
 
     private ViewFormsResponse getFormsByHod(Long identifier) {
         Authority authority = authorityRepository.findByUser_Id(identifier).orElseThrow(() -> new RuntimeException("Hod not found"));
 
-        List<RequestDetails> requestDetails = batchDetailsRepository.findAllByDepartmentId(authority.getDepartment().getId()).stream().map(batch -> getFormsByBatchDetails(Optional.ofNullable(batch))).flatMap(List::stream).toList();
+        List<RequestFormInfo> requestForms = requestDetailsRepository
+                .getFormsByHod(authority.getUser().getId())
+                .stream()
+                .map(p -> RequestFormInfo.builder()
+                        .id(p.getId())
+                        .requestBody(p.getRequestBody())
+                        .requestTitle(p.getRequestTitle())
+                        .status(p.getStatus())
+                        .build())
+                .toList();
 
-        return formServiceUtil.convertFormsToResponse(requestDetails);
+        return ViewFormsResponse.builder()
+                .requestForms(requestForms)
+                .totalForms(requestForms.size())
+                .build();
     }
 
-    private List<RequestDetails> getFormsByBatchDetails(Optional<BatchDetails> batchDetails) {
-        return batchDetails.map(details -> studentRepository.findByBatchId(details.getId()).stream()
-                .map(student -> requestDetailsRepository.findByStudentId(student.getId()))
-                .flatMap(List::stream)
-                .collect(Collectors.toList())).orElseGet(List::of);
+    private ViewFormsResponse getFormsByPrincipal(Long identifier) {
+        Authority authority = authorityRepository.findByUser_Id(identifier).orElseThrow(() -> new RuntimeException("Principal not found"));
 
+        List<RequestFormInfo> requestForms = requestDetailsRepository
+                .getFormsByPrincipal(authority.getUser().getId())
+                .stream()
+                .map(p -> RequestFormInfo.builder()
+                        .id(p.getId())
+                        .requestBody(p.getRequestBody())
+                        .requestTitle(p.getRequestTitle())
+                        .status(p.getStatus())
+                        .build())
+                .toList();
+
+        return ViewFormsResponse.builder()
+                .requestForms(requestForms)
+                .totalForms(requestForms.size())
+                .build();
     }
 }
