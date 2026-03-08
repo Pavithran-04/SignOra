@@ -1,23 +1,50 @@
 import { useState } from "react";
+import useStudentService from "../hooks/useStudentService";
 
-function RequestForm({ showModal, setShowModal }) {
+
+
+function RequestForm({ showModal, setShowModal, onFormSubmitted }) {
+  const { isLoading, error, submitRequestForm } = useStudentService();
   const [formData, setFormData] = useState({
-    subject: "",
+    requestTitle: "",
     requestBody: "",
+    isHodApprovalRequired: false,
+    isPrincipalApprovalRequired: false,
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleSubmit = () => {
-    console.log("Form Data:", formData);
-    setShowModal(false);
+  // const [approvalCheckBox, setApprovalCheckBox] = useState({
+  //   hod: false,
+  //   principal: false,
+  // });
+
+  const handleSubmit = async () => {
+    try {
+      await submitRequestForm(formData);
+      // Reset form after successful submission
+      setFormData({
+        requestTitle: "",
+        requestBody: "",
+        isHodApprovalRequired: false,
+        isPrincipalApprovalRequired: false,
+      });
+      setShowModal(false);
+      // Refetch the dashboard data to show the new form
+      if (onFormSubmitted) {
+        onFormSubmitted();
+      }
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      // Keep modal open if there's an error so user can retry
+    }
   };
 
   const onClose = () => {
@@ -25,62 +52,114 @@ function RequestForm({ showModal, setShowModal }) {
   };
 
   return (
-    <div className="modal show d-block" tabIndex="-1">
-      {console.log("lskdnfkj")}
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">Application Form</h5>
+    <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+      <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-content shadow border-0">
+          <div className="modal-header border-0 pb-0">
+            <h2 className="fw-bold text-center w-100 mb-3">Application Form</h2>
             <button
               type="button"
-              className="btn-close"
+              className="btn-close position-absolute top-0 end-0 m-3"
               data-bs-dismiss="modal"
               aria-label="Close"
-              onclick={onClose}
+              onClick={onClose}
             />
           </div>
 
-          <div className="modal-body">
-            <div className="mb-3">
-              <label className="form-label">Subject</label>
+          <div className="modal-body p-5">
+            <p className="text-muted text-center mb-4">
+              Fill in the details to submit your request.
+            </p>
+
+            <div className="mb-4 text-start">
+              <label className="form-label fw-semibold">Subject</label>
               <input
                 type="text"
-                className="form-control"
-                placeholder="Subject"
-                name="subject"
-                value={formData.subject}
+                className="form-control form-control-lg"
+                placeholder="Enter subject"
+                name="requestTitle"
+                value={formData.requestTitle}
                 onChange={handleChange}
+                required
               />
             </div>
 
-            <div className="mb-3">
-              <label className="form-label">Request Body</label>
+            <div className="mb-4 text-start">
+              <label className="form-label fw-semibold">Request Body</label>
               <textarea
-                className="form-control"
+                className="form-control form-control-lg"
                 rows="4"
+                placeholder="Enter request details"
                 name="requestBody"
                 value={formData.requestBody}
                 onChange={handleChange}
+                required
               />
             </div>
-          </div>
 
-          <div className="modal-footer">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              data-bs-dismiss="modal"
-              onClick={onClose}
-            >
-              Close
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleSubmit}
-            >
-              Submit
-            </button>
+            <div className="mb-4 text-start">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="isHodApprovalRequired"
+                  name="isHodApprovalRequired"
+                  checked={formData.isHodApprovalRequired}
+                  onChange={handleChange}
+                />
+                <label className="form-check-label fw-semibold" htmlFor="isHodApprovalRequired">
+                  Required HOD Approval
+                </label>
+              </div>
+            </div>
+
+            <div className="mb-4 text-start">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="isPrincipalApprovalRequired"
+                  name="isPrincipalApprovalRequired"
+                  checked={formData.isPrincipalApprovalRequired}
+                  onChange={handleChange}
+                />
+                <label className="form-check-label fw-semibold" htmlFor="isPrincipalApprovalRequired">
+                  Required Principal Approval
+                </label>
+              </div>
+            </div>
+
+            {error && (
+              <div className="alert alert-danger" role="alert">
+                <strong>Error:</strong> {error}
+              </div>
+            )}
+
+            <div className="d-flex gap-3 mt-4">
+              <button
+                type="button"
+                className="btn btn-dark w-50 py-2"
+                onClick={handleSubmit}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-dark w-50 py-2"
+                onClick={onClose}
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -11,7 +11,6 @@ const useLogin = () => {
       setErrorMsg("");
 
       const response = await loginUser(credentials);
-      console.log("data", response);
 
       return response;
     } catch (error) {

@@ -1,26 +1,19 @@
 import { useEffect, useState, useCallback } from "react";
-import RequestForm from "../Component/RequestForm";
-import useStudentService from "../hooks/useStudentService";
+import useAuthorityService from "../hooks/useAuthorityService";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 
-function StudentDashboard({ role }) {
+
+function AuthorityDashboard({ role }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const id = searchParams.get("id");
 
-  const [showModal, setShowModal] = useState(false);
   const [requestData, setRequestData] = useState([]);
   const [filterStatus, setFilterStatus] = useState("PENDING");
-  const [studentInfo, setStudentInfo] = useState({ name: "", rollNo: "" });
 
-  const { isLoading, error, getRequestDetails, getStudent } =
-    useStudentService();
-
-  const onClickApplicationForm = () => {
-    setShowModal(true);
-  };
+  const { isLoading, error, getRequestDetails, updateStatus } = useAuthorityService();
 
   // Fetch data function - can be called from anywhere
   const fetchFormData = useCallback(async () => {
@@ -32,31 +25,8 @@ function StudentDashboard({ role }) {
         role: role,
       });
 
-     
-
       // Safe fallback
       setRequestData(response.data?.requestForms || []);
-
-      // Fetch student info if studentId is available
-      const studentId = id;
-      
-      if (studentId) {
-        try {
-          const studentResponse = await getStudent({ studentId });
-         
-          const studentData = studentResponse.data;
-          if (studentData) {
-            const fullName =
-              `${studentData.firstName || ""} ${studentData.lastName || ""}`.trim();
-            setStudentInfo({
-              name: fullName,
-              rollNo: studentData.rollNo || "",
-            });
-          }
-        } catch (err) {
-          console.error("Error fetching student info:", err);
-        }
-      }
     } catch (err) {
       console.error("Error fetching data:", err);
     }
@@ -65,54 +35,91 @@ function StudentDashboard({ role }) {
   // Fetch data on mount and when id/role changes
   useEffect(() => {
     fetchFormData();
-
-    // Also check localStorage for student info (set during login)
-    const storedStudentInfo = localStorage.getItem("studentInfo");
-    if (storedStudentInfo) {
-      try {
-        const parsedInfo = JSON.parse(storedStudentInfo);
-        if (parsedInfo.name || parsedInfo.rollNo) {
-          setStudentInfo(parsedInfo);
-        }
-      } catch (err) {
-        console.error("Error parsing stored student info:", err);
-      }
-    }
   }, [fetchFormData]);
 
-  // Filter directly (no extra state needed)
-  // const filteredData = requestData.filter(
-  //   (data) => data.status === 'PENDING'
-  //   return
-  // );
+  // Handle approve/reject
+  const handleStatusUpdate = async (requestId, isApproved) => {
+    try {
+      await updateStatus({
+        requestId: requestId,
+        isApproved: isApproved,
+      });
+      // Refetch data after status update
+      await fetchFormData();
+    } catch (err) {
+      console.error("Error updating status:", err);
+    }
+  };
 
+  // Filter data based on status
   const filteredData = requestData.filter((data) => {
     if (filterStatus === "PENDING") {
-      return data.status.startsWith("MOVED");
+      return (
+        data.status === "MOVED_TO_FACULTY" ||
+        data.status === "MOVED_TO_HOD" ||
+        data.status === "MOVED_TO_PRINCIPAL"
+      );
     }
 
     if (filterStatus === "APPROVED") {
-      return data.status.startsWith("APPROVED");
+      return (
+        data.status?.startsWith("APPROVED") ||
+        data.status === "APPROVED_BY_FACULTY" ||
+        data.status === "APPROVED_BY_HOD" ||
+        data.status === "APPROVED_BY_PRINCIPAL"
+      );
     }
 
     if (filterStatus === "REJECTED") {
-      return data.status.startsWith("REJECTED");
+      return (
+        data.status?.startsWith("REJECTED") ||
+        data.status === "REJECTED_BY_FACULTY" ||
+        data.status === "REJECTED_BY_HOD" ||
+        data.status === "REJECTED_BY_PRINCIPAL"
+      );
     }
 
     return true;
   });
 
+  // Get status badge class
   const getStatusBadgeClass = (status) => {
     if (status?.startsWith("APPROVED")) return "badge bg-success";
     if (status?.startsWith("REJECTED")) return "badge bg-danger";
-    if (status?.startsWith("MOVED")) return "badge bg-warning";
+    if (
+      status === "MOVED_TO_FACULTY" ||
+      status === "MOVED_TO_HOD" ||
+      status === "MOVED_TO_PRINCIPAL"
+    ) {
+      return "badge bg-warning";
+    }
     return "badge bg-secondary";
   };
 
+  // Check if form can be approved/rejected by current authority
+  const canTakeAction = (status) => {
+    if (role === "FACULTY") {
+      return status === "MOVED_TO_FACULTY";
+    }
+    if (role === "HOD") {
+      return status === "MOVED_TO_HOD";
+    }
+    if (role === "PRINCIPAL") {
+      return status === "MOVED_TO_PRINCIPAL";
+    }
+    return false;
+  };
+
+  const getRoleDisplayName = () => {
+    if (role === "FACULTY") return "Faculty";
+    if (role === "HOD") return "HOD";
+    if (role === "PRINCIPAL") return "Principal";
+    return "Authority";
+  };
+
   const handleLogout = () => {
-    // Clear authentication tokens and user data
+    // Clear authentication tokens
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("studentInfo");
     // Navigate to login page
     navigate("/");
   };
@@ -125,7 +132,7 @@ function StudentDashboard({ role }) {
           style={{ maxWidth: "1000px", width: "100%" }}
         >
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h2 className="fw-bold mb-0">Student Dashboard</h2>
+            <h2 className="fw-bold mb-0">{getRoleDisplayName()} Dashboard</h2>
             <button
               className="btn btn-outline-danger btn-sm"
               onClick={handleLogout}
@@ -135,40 +142,8 @@ function StudentDashboard({ role }) {
             </button>
           </div>
           <p className="text-muted text-center mb-4">
-            View and manage your request forms.
+            Review and manage request forms for approval or rejection.
           </p>
-
-          {/* Student Information */}
-          {(studentInfo.name || studentInfo.rollNo) && (
-            <div className="mb-4 p-3 bg-light rounded">
-              <div className="row text-start">
-                <div className="col-md-6 mb-2">
-                  <label className="form-label fw-semibold text-muted mb-1">
-                    Student Name
-                  </label>
-                  <div className="fw-bold">{studentInfo.name || "N/A"}</div>
-                </div>
-                <div className="col-md-6 mb-2">
-                  <label className="form-label fw-semibold text-muted mb-1">
-                    Roll Number
-                  </label>
-                  <div className="fw-bold">{studentInfo.rollNo || "N/A"}</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Application Form Button */}
-          <div className="mb-4">
-            <button
-              type="button"
-              className="btn btn-dark w-100 py-2"
-              onClick={onClickApplicationForm}
-            >
-              <i className="bi bi-plus-circle me-2"></i>
-              Application Form
-            </button>
-          </div>
 
           {/* Filter Tabs */}
           <div className="mb-4">
@@ -216,9 +191,7 @@ function StudentDashboard({ role }) {
                   <th scope="col">S.no</th>
                   <th scope="col">Request Title</th>
                   <th scope="col">Status</th>
-                  {filterStatus.startsWith("APPROVED") && (
-                    <th scope="col">Certificate Upload</th>
-                  )}
+                  <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -240,21 +213,35 @@ function StudentDashboard({ role }) {
                           {data.status}
                         </span>
                       </td>
-                      {filterStatus.startsWith("APPROVED") && (
-                        <td>
-                          <button className="btn btn-sm btn-outline-primary">
-                            Upload
-                          </button>
-                        </td>
-                      )}
+                      <td>
+                        {canTakeAction(data.status) ? (
+                          <div className="d-flex gap-2">
+                            <button
+                              className="btn btn-sm btn-success"
+                              onClick={() => handleStatusUpdate(data.id, true)}
+                              disabled={isLoading}
+                            >
+                              <i className="bi bi-check-circle me-1"></i>
+                              Approve
+                            </button>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => handleStatusUpdate(data.id, false)}
+                              disabled={isLoading}
+                            >
+                              <i className="bi bi-x-circle me-1"></i>
+                              Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-muted">No action available</span>
+                        )}
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td
-                      colSpan={filterStatus.startsWith("APPROVED") ? 4 : 3}
-                      className="text-center py-5 text-muted"
-                    >
+                    <td colSpan="4" className="text-center py-5 text-muted">
                       <i className="bi bi-inbox fs-1 d-block mb-2"></i>
                       No Records Found
                     </td>
@@ -279,16 +266,8 @@ function StudentDashboard({ role }) {
           )}
         </div>
       </div>
-
-      {showModal && (
-        <RequestForm
-          showModal={showModal}
-          setShowModal={setShowModal}
-          onFormSubmitted={fetchFormData}
-        />
-      )}
     </div>
   );
 }
 
-export default StudentDashboard;
+export default AuthorityDashboard;
