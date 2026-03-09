@@ -96,6 +96,12 @@ function AuthorityDashboard({ role }) {
     return "badge bg-secondary";
   };
 
+  // Format status to remove underscores
+  const formatStatus = (status) => {
+    if (!status) return "";
+    return status.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   // Check if form can be approved/rejected by current authority
   const canTakeAction = (status) => {
     if (role === "FACULTY") {
@@ -210,7 +216,7 @@ function AuthorityDashboard({ role }) {
                       </td>
                       <td>
                         <span className={getStatusBadgeClass(data.status)}>
-                          {data.status}
+                          {formatStatus(data.status)}
                         </span>
                       </td>
                       <td>

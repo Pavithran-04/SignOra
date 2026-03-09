@@ -1,7 +1,7 @@
 import { submitForm } from "../api/StudentService";
 import { useState } from "react";
 import { getRequestForm } from "../api/StudentService";
-import { getFormDetails, getStudentDetails } from "../api/StudentService";
+import { getFormDetails, getStudentDetails, uploadCertificateLink } from "../api/StudentService";
 // import {submitForm} from "../api/StudentService";
 const useStudentService = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -61,7 +61,8 @@ const useStudentService = () => {
       setIsLoading(true);
       setError("");
 
-      const response = await getStudentDetails(data);
+      const studentId = typeof data === 'object' ? data.studentId : data;
+      const response = await getStudentDetails(studentId);
 
       return response;
     } catch (error) {
@@ -71,6 +72,22 @@ const useStudentService = () => {
       setIsLoading(false);
     }
   };
+  const uploadCertificate = async (data) => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const response = await uploadCertificateLink(data.requestId, data.link);
+
+      return response;
+    } catch (error) {
+      setError("Error uploading certificate link");
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     error,
@@ -78,6 +95,7 @@ const useStudentService = () => {
     getRequestDetails,
     getForm,
     getStudent,
+    uploadCertificate,
   };
 };
 

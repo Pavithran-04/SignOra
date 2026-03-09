@@ -20,6 +20,14 @@ export const getFormDetails = async (formId) => {
 };
 
 export const getStudentDetails = async (studentId) => {
-  const response = await axiosInstance.get(`/students/${studentId}`);
+  const response = await axiosInstance.get(`/admin/students/${studentId}`);
+  return response;
+};
+
+export const uploadCertificateLink = async (requestId, driveLink) => {
+  const response = await axiosInstance.post(`/certificate/upload`, {
+    requestId: requestId,
+    link: driveLink,
+  });
   return response;
 };

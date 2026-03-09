@@ -75,15 +75,7 @@ export default function AddStudent() {
       return;
     }
 
-    console.log({
-      name,
-      rollNumber,
-      username,
-      password,
-      college: college.value,
-      department: department.value,
-      batch: batch.value,
-    });
+ 
 
     setToastMsg("Student added successfully!");
 

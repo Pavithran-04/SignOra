@@ -11,11 +11,14 @@ function StudentDashboard({ role }) {
   const id = searchParams.get("id");
 
   const [showModal, setShowModal] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [driveLink, setDriveLink] = useState("");
   const [requestData, setRequestData] = useState([]);
   const [filterStatus, setFilterStatus] = useState("PENDING");
   const [studentInfo, setStudentInfo] = useState({ name: "", rollNo: "" });
 
-  const { isLoading, error, getRequestDetails, getStudent } =
+  const { isLoading, error, getRequestDetails, getStudent, uploadCertificate } =
     useStudentService();
 
   const onClickApplicationForm = () => {
@@ -42,7 +45,7 @@ function StudentDashboard({ role }) {
       
       if (studentId) {
         try {
-          const studentResponse = await getStudent({ studentId });
+          const studentResponse = await getStudent(studentId);
          
           const studentData = studentResponse.data;
           if (studentData) {
@@ -109,12 +112,52 @@ function StudentDashboard({ role }) {
     return "badge bg-secondary";
   };
 
+  const formatStatus = (status) => {
+    if (!status) return "";
+    return status.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   const handleLogout = () => {
     // Clear authentication tokens and user data
     localStorage.removeItem("accessToken");
     localStorage.removeItem("studentInfo");
     // Navigate to login page
     navigate("/");
+  };
+
+  const handleUploadClick = (request) => {
+    setSelectedRequest(request);
+    setDriveLink(request.certificateLink || "");
+    setShowUploadModal(true);
+  };
+
+  const handleUploadSubmit = async (e) => {
+    e.preventDefault();
+    if (!driveLink.trim()) {
+      alert("Please enter a valid drive link");
+      return;
+    }
+
+    try {
+      await uploadCertificate({
+        requestId: selectedRequest.id,
+        link: driveLink.trim(),
+      });
+      setShowUploadModal(false);
+      setDriveLink("");
+      setSelectedRequest(null);
+      fetchFormData();
+      alert("Certificate link uploaded successfully!");
+    } catch (err) {
+      console.error("Error uploading certificate:", err);
+      alert("Failed to upload certificate link. Please try again.");
+    }
+  };
+
+  const handleCloseUploadModal = () => {
+    setShowUploadModal(false);
+    setDriveLink("");
+    setSelectedRequest(null);
   };
 
   return (
@@ -134,35 +177,17 @@ function StudentDashboard({ role }) {
               Logout
             </button>
           </div>
-          <p className="text-muted text-center mb-4">
-            View and manage your request forms.
-          </p>
 
-          {/* Student Information */}
-          {(studentInfo.name || studentInfo.rollNo) && (
-            <div className="mb-4 p-3 bg-light rounded">
-              <div className="row text-start">
-                <div className="col-md-6 mb-2">
-                  <label className="form-label fw-semibold text-muted mb-1">
-                    Student Name
-                  </label>
-                  <div className="fw-bold">{studentInfo.name || "N/A"}</div>
-                </div>
-                <div className="col-md-6 mb-2">
-                  <label className="form-label fw-semibold text-muted mb-1">
-                    Roll Number
-                  </label>
-                  <div className="fw-bold">{studentInfo.rollNo || "N/A"}</div>
-                </div>
+          {/* Student Information and Application Form Button */}
+          <div className="mb-4 d-flex justify-content-between align-items-center p-3 bg-light rounded">
+            {(studentInfo.name || studentInfo.rollNo) && (
+              <div className="fw-bold fs-5 mb-0">
+                {studentInfo.name || ""} {studentInfo.name && studentInfo.rollNo ? " / " : ""} {studentInfo.rollNo || ""}
               </div>
-            </div>
-          )}
-
-          {/* Application Form Button */}
-          <div className="mb-4">
+            )}
             <button
               type="button"
-              className="btn btn-dark w-100 py-2"
+              className="btn btn-dark py-2"
               onClick={onClickApplicationForm}
             >
               <i className="bi bi-plus-circle me-2"></i>
@@ -237,14 +262,30 @@ function StudentDashboard({ role }) {
                       </td>
                       <td>
                         <span className={getStatusBadgeClass(data.status)}>
-                          {data.status}
+                          {formatStatus(data.status)}
                         </span>
                       </td>
                       {filterStatus.startsWith("APPROVED") && (
                         <td>
-                          <button className="btn btn-sm btn-outline-primary">
-                            Upload
-                          </button>
+                          {data.certificateLink ? (
+                            <a
+                              href={data.certificateLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-sm btn-success"
+                            >
+                              <i className="bi bi-link-45deg me-1"></i>
+                              View Link
+                            </a>
+                          ) : (
+                            <button
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => handleUploadClick(data)}
+                            >
+                              <i className="bi bi-cloud-upload me-1"></i>
+                              Upload
+                            </button>
+                          )}
                         </td>
                       )}
                     </tr>
@@ -286,6 +327,100 @@ function StudentDashboard({ role }) {
           setShowModal={setShowModal}
           onFormSubmitted={fetchFormData}
         />
+      )}
+
+      {/* Upload Certificate Modal */}
+      {showUploadModal && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <i className="bi bi-cloud-upload me-2"></i>
+                  Upload Certificate Drive Link
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCloseUploadModal}
+                ></button>
+              </div>
+              <form onSubmit={handleUploadSubmit}>
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label htmlFor="requestTitle" className="form-label fw-semibold">
+                      Request Title
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="requestTitle"
+                      value={selectedRequest?.requestTitle || ""}
+                      disabled
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="driveLink" className="form-label fw-semibold">
+                      Google Drive Link <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="url"
+                      className="form-control"
+                      id="driveLink"
+                      placeholder="https://drive.google.com/..."
+                      value={driveLink}
+                      onChange={(e) => setDriveLink(e.target.value)}
+                      required
+                    />
+                    <div className="form-text">
+                      <i className="bi bi-info-circle me-1"></i>
+                      Paste your Google Drive shareable link here
+                    </div>
+                  </div>
+                  <div className="alert alert-info mb-0">
+                    <i className="bi bi-lightbulb me-2"></i>
+                    <strong>Tip:</strong> Make sure your Google Drive file is set to "Anyone with the link can view"
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleCloseUploadModal}
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={isLoading || !driveLink.trim()}
+                  >
+                    {isLoading ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-check-circle me-2"></i>
+                        Upload Link
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
