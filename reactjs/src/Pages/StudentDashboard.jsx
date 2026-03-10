@@ -12,6 +12,7 @@ function StudentDashboard({ role }) {
 
   const [showModal, setShowModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [driveLink, setDriveLink] = useState("");
   const [requestData, setRequestData] = useState([]);
@@ -64,6 +65,12 @@ function StudentDashboard({ role }) {
       console.error("Error fetching data:", err);
     }
   }, [id, role]);
+
+  useEffect(() => {
+    if (!submitMessage) return;
+    const timer = setTimeout(() => setSubmitMessage(null), 6000);
+    return () => clearTimeout(timer);
+  }, [submitMessage]);
 
   // Fetch data on mount and when id/role changes
   useEffect(() => {
@@ -268,22 +275,22 @@ function StudentDashboard({ role }) {
                       {filterStatus.startsWith("APPROVED") && (
                         <td>
                           {data.certificateLink ? (
-                            <a
-                              href={data.certificateLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-sm btn-success"
-                            >
-                              <i className="bi bi-link-45deg me-1"></i>
-                              View Link
-                            </a>
-                          ) : (
                             <button
+                              type="button"
                               className="btn btn-sm btn-outline-primary"
                               onClick={() => handleUploadClick(data)}
                             >
-                              <i className="bi bi-cloud-upload me-1"></i>
-                              Upload
+                              <i className="bi bi-pencil me-1"></i>
+                              Edit
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => handleUploadClick(data)}
+                            >
+                              <i className="bi bi-plus-circle me-1"></i>
+                              Add
                             </button>
                           )}
                         </td>
@@ -326,7 +333,29 @@ function StudentDashboard({ role }) {
           showModal={showModal}
           setShowModal={setShowModal}
           onFormSubmitted={fetchFormData}
+          onSubmitSuccess={() =>
+            setSubmitMessage(
+              "Your application has been submitted successfully. It will be reviewed by the authorities."
+            )
+          }
         />
+      )}
+
+      {submitMessage && (
+        <div
+          className="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 shadow"
+          style={{ zIndex: 1050, minWidth: "320px", maxWidth: "90vw" }}
+          role="alert"
+        >
+          <i className="bi bi-check-circle-fill me-2"></i>
+          {submitMessage}
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Close"
+            onClick={() => setSubmitMessage(null)}
+          />
+        </div>
       )}
 
       {/* Upload Certificate Modal */}

@@ -25,7 +25,7 @@ export const getStudentDetails = async (studentId) => {
 };
 
 export const uploadCertificateLink = async (requestId, driveLink) => {
-  const response = await axiosInstance.post(`/certificate/upload`, {
+  const response = await axiosInstance.post("/certificate", {
     requestId: requestId,
     link: driveLink,
   });

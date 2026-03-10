@@ -1,9 +1,7 @@
 import { useState } from "react";
 import useStudentService from "../hooks/useStudentService";
 
-
-
-function RequestForm({ showModal, setShowModal, onFormSubmitted }) {
+function RequestForm({ showModal, setShowModal, onFormSubmitted, onSubmitSuccess }) {
   const { isLoading, error, submitRequestForm } = useStudentService();
   const [formData, setFormData] = useState({
     requestTitle: "",
@@ -11,39 +9,45 @@ function RequestForm({ showModal, setShowModal, onFormSubmitted }) {
     isHodApprovalRequired: false,
     isPrincipalApprovalRequired: false,
   });
+  const [fieldErrors, setFieldErrors] = useState({ requestTitle: "", requestBody: "" });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
-  // const [approvalCheckBox, setApprovalCheckBox] = useState({
-  //   hod: false,
-  //   principal: false,
-  // });
-
   const handleSubmit = async () => {
+    const requestTitle = (formData.requestTitle || "").trim();
+    const requestBody = (formData.requestBody || "").trim();
+    const newErrors = {
+      requestTitle: !requestTitle ? "Subject is required." : "",
+      requestBody: !requestBody ? "Request body is required." : "",
+    };
+    setFieldErrors(newErrors);
+    if (newErrors.requestTitle || newErrors.requestBody) return;
+
     try {
-      await submitRequestForm(formData);
-      // Reset form after successful submission
+      await submitRequestForm({ ...formData, requestTitle, requestBody });
       setFormData({
         requestTitle: "",
         requestBody: "",
         isHodApprovalRequired: false,
         isPrincipalApprovalRequired: false,
       });
+      setFieldErrors({ requestTitle: "", requestBody: "" });
       setShowModal(false);
-      // Refetch the dashboard data to show the new form
-      if (onFormSubmitted) {
-        onFormSubmitted();
-      }
+      setTimeout(() => {
+        if (onFormSubmitted) onFormSubmitted();
+        if (onSubmitSuccess) onSubmitSuccess();
+      }, 0);
     } catch (err) {
       console.error("Error submitting form:", err);
-      // Keep modal open if there's an error so user can retry
     }
   };
 
@@ -72,29 +76,37 @@ function RequestForm({ showModal, setShowModal, onFormSubmitted }) {
             </p>
 
             <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">Subject</label>
+              <label className="form-label fw-semibold">
+                Subject <span className="text-danger">*</span>
+              </label>
               <input
                 type="text"
-                className="form-control form-control-lg"
+                className={`form-control form-control-lg ${fieldErrors.requestTitle ? "is-invalid" : ""}`}
                 placeholder="Enter subject"
                 name="requestTitle"
                 value={formData.requestTitle}
                 onChange={handleChange}
-                required
               />
+              {fieldErrors.requestTitle && (
+                <div className="invalid-feedback d-block">{fieldErrors.requestTitle}</div>
+              )}
             </div>
 
             <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">Request Body</label>
+              <label className="form-label fw-semibold">
+                Request Body <span className="text-danger">*</span>
+              </label>
               <textarea
-                className="form-control form-control-lg"
+                className={`form-control form-control-lg ${fieldErrors.requestBody ? "is-invalid" : ""}`}
                 rows="4"
                 placeholder="Enter request details"
                 name="requestBody"
                 value={formData.requestBody}
                 onChange={handleChange}
-                required
               />
+              {fieldErrors.requestBody && (
+                <div className="invalid-feedback d-block">{fieldErrors.requestBody}</div>
+              )}
             </div>
 
             <div className="mb-4 text-start">
