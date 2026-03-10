@@ -3,15 +3,9 @@ package com.application.signora.serviceimpl;
 import com.application.signora.dto.response.requestforms.RequestFormInfo;
 import com.application.signora.dto.response.projections.RequestFormInfoProjection;
 import com.application.signora.dto.response.student.ViewFormsResponse;
-import com.application.signora.entity.Authority;
-import com.application.signora.entity.BatchDetails;
-import com.application.signora.entity.RequestDetails;
-import com.application.signora.entity.Student;
+import com.application.signora.entity.*;
 import com.application.signora.entity.enums.UserType;
-import com.application.signora.repository.AuthorityRepository;
-import com.application.signora.repository.BatchDetailsRepository;
-import com.application.signora.repository.RequestDetailsRepository;
-import com.application.signora.repository.StudentRepository;
+import com.application.signora.repository.*;
 import com.application.signora.service.FormService;
 import com.application.signora.utility.FormServiceUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.swing.text.View;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -43,6 +38,9 @@ public class FormServiceImpl implements FormService {
 
     @Autowired
     FormServiceUtil formServiceUtil;
+
+    @Autowired
+    CertificateInfoRepository certificateInfoRepository;
 
     @Autowired
     BatchDetailsRepository batchDetailsRepository;
@@ -67,7 +65,15 @@ public class FormServiceImpl implements FormService {
     @Override
     public RequestFormInfo getForm(Long formId) {
         RequestDetails requestDetails = requestDetailsRepository.findById(formId).orElseThrow(() -> new RuntimeException("Invalid form id"));
-        return RequestFormInfo.builder().id(requestDetails.getId()).requestTitle(requestDetails.getRequestTitle()).requestBody(requestDetails.getRequestBody()).status(requestDetails.getStatus()).build();
+        return RequestFormInfo.builder()
+                .id(requestDetails.getId())
+                .requestTitle(requestDetails.getRequestTitle())
+                .requestBody(requestDetails.getRequestBody())
+                .certificateLink(formServiceUtil.getCertificateLink(requestDetails))
+                .requiredHodApproval(requestDetails.getApprovalInfo().getNeedHodSign())
+                .requirePrincipalApproval(requestDetails.getApprovalInfo().getNeedPrincipalSign())
+                .status(requestDetails.getStatus())
+                .build();
     }
 
     private ViewFormsResponse getFormsByStudent(Long identifier) {
@@ -90,6 +96,9 @@ public class FormServiceImpl implements FormService {
                         .requestBody(p.getRequestBody())
                         .requestTitle(p.getRequestTitle())
                         .status(p.getStatus())
+                        .requiredHodApproval(p.getRequiredHodApproval())
+                        .requirePrincipalApproval(p.getRequiredPrincipalApproval())
+                        .certificateLink(p.getCertificateLink())
                         .build())
                 .toList();
 
@@ -109,6 +118,9 @@ public class FormServiceImpl implements FormService {
                         .id(p.getId())
                         .requestBody(p.getRequestBody())
                         .requestTitle(p.getRequestTitle())
+                        .requiredHodApproval(p.getRequiredHodApproval())
+                        .requirePrincipalApproval(p.getRequiredPrincipalApproval())
+                        .certificateLink(p.getCertificateLink())
                         .status(p.getStatus())
                         .build())
                 .toList();
@@ -129,6 +141,9 @@ public class FormServiceImpl implements FormService {
                         .id(p.getId())
                         .requestBody(p.getRequestBody())
                         .requestTitle(p.getRequestTitle())
+                        .requiredHodApproval(p.getRequiredHodApproval())
+                        .requirePrincipalApproval(p.getRequiredPrincipalApproval())
+                        .certificateLink(p.getCertificateLink())
                         .status(p.getStatus())
                         .build())
                 .toList();
