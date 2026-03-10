@@ -36,18 +36,14 @@ function StudentDashboard({ role }) {
         role: role,
       });
 
-     
-
       // Safe fallback
       setRequestData(response.data?.requestForms || []);
 
-      // Fetch student info if studentId is available
+      // After getRequestDetails, call getStudent API
       const studentId = id;
-      
       if (studentId) {
         try {
-          const studentResponse = await getStudent(studentId);
-         
+          const studentResponse = await getStudent(id);
           const studentData = studentResponse.data;
           if (studentData) {
             const fullName =
@@ -58,7 +54,7 @@ function StudentDashboard({ role }) {
             });
           }
         } catch (err) {
-          console.error("Error fetching student info:", err);
+          console.error("Error calling getStudent API:", err);
         }
       }
     } catch (err) {
@@ -75,19 +71,6 @@ function StudentDashboard({ role }) {
   // Fetch data on mount and when id/role changes
   useEffect(() => {
     fetchFormData();
-
-    // Also check localStorage for student info (set during login)
-    const storedStudentInfo = localStorage.getItem("studentInfo");
-    if (storedStudentInfo) {
-      try {
-        const parsedInfo = JSON.parse(storedStudentInfo);
-        if (parsedInfo.name || parsedInfo.rollNo) {
-          setStudentInfo(parsedInfo);
-        }
-      } catch (err) {
-        console.error("Error parsing stored student info:", err);
-      }
-    }
   }, [fetchFormData]);
 
   // Filter directly (no extra state needed)

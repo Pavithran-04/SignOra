@@ -12,8 +12,9 @@ function AuthorityDashboard({ role }) {
 
   const [requestData, setRequestData] = useState([]);
   const [filterStatus, setFilterStatus] = useState("PENDING");
+  const [authorityInfo, setAuthorityInfo] = useState({ name: "", empId: "" });
 
-  const { isLoading, error, getRequestDetails, updateStatus } = useAuthorityService();
+  const { isLoading, error, getRequestDetails, updateStatus, getAuthority } = useAuthorityService();
 
   // Fetch data function - can be called from anywhere
   const fetchFormData = useCallback(async () => {
@@ -32,10 +33,50 @@ function AuthorityDashboard({ role }) {
     }
   }, [id, role]);
 
+  // Fetch authority details
+  const fetchAuthorityDetails = useCallback(async () => {
+    if (!id || !role) return;
+
+    try {
+      const authorityResponse = await getAuthority(id);
+      const authorityData = authorityResponse.data;
+      if (authorityData) {
+        setAuthorityInfo({
+          name: authorityData.fullName || "",
+          empId: authorityData.employeeId || "",
+        });
+        // Store in localStorage for future use
+        localStorage.setItem(
+          "authorityInfo",
+          JSON.stringify({
+            name: authorityData.fullName || "",
+            empId: authorityData.employeeId || "",
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Error fetching authority details:", err);
+      // Fallback to localStorage if API call fails
+      const storedAuthorityInfo = localStorage.getItem("authorityInfo");
+      if (storedAuthorityInfo) {
+        try {
+          const parsedInfo = JSON.parse(storedAuthorityInfo);
+          if (parsedInfo.name || parsedInfo.empId) {
+            setAuthorityInfo(parsedInfo);
+          }
+        } catch (parseErr) {
+          console.error("Error parsing stored authority info:", parseErr);
+        }
+      }
+    }
+  }, [id, role]);
+
   // Fetch data on mount and when id/role changes
   useEffect(() => {
     fetchFormData();
-  }, [fetchFormData]);
+    fetchAuthorityDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, role]);
 
   // Handle approve/reject
   const handleStatusUpdate = async (requestId, isApproved) => {
@@ -54,6 +95,17 @@ function AuthorityDashboard({ role }) {
   // Filter data based on status
   const filteredData = requestData.filter((data) => {
     if (filterStatus === "PENDING") {
+      // For FACULTY role, only show MOVED_TO_FACULTY in PENDING tab
+      // (MOVED_TO_HOD and MOVED_TO_PRINCIPAL are shown in APPROVED tab)
+      if (role === "FACULTY") {
+        return data.status === "MOVED_TO_FACULTY";
+      }
+      // For HOD role, only show MOVED_TO_HOD in PENDING tab
+      // (MOVED_TO_PRINCIPAL is shown in APPROVED tab)
+      if (role === "HOD") {
+        return data.status === "MOVED_TO_HOD";
+      }
+      // For other roles (PRINCIPAL), show all pending statuses
       return (
         data.status === "MOVED_TO_FACULTY" ||
         data.status === "MOVED_TO_HOD" ||
@@ -62,6 +114,18 @@ function AuthorityDashboard({ role }) {
     }
 
     if (filterStatus === "APPROVED") {
+      // For FACULTY role, show MOVED_TO_HOD and MOVED_TO_PRINCIPAL in Approve tab
+      if (role === "FACULTY") {
+        return (
+          data.status === "MOVED_TO_HOD" ||
+          data.status === "MOVED_TO_PRINCIPAL"
+        );
+      }
+      // For HOD role, show MOVED_TO_PRINCIPAL in Approve tab
+      if (role === "HOD") {
+        return data.status === "MOVED_TO_PRINCIPAL";
+      }
+      // For other roles (PRINCIPAL), show approved statuses
       return (
         data.status?.startsWith("APPROVED") ||
         data.status === "APPROVED_BY_FACULTY" ||
@@ -147,9 +211,15 @@ function AuthorityDashboard({ role }) {
               Logout
             </button>
           </div>
-          <p className="text-muted text-center mb-4">
-            Review and manage request forms for approval or rejection.
-          </p>
+
+          {/* Authority Information */}
+          {(authorityInfo.name || authorityInfo.empId) && (
+            <div className="mb-4 p-3 bg-light rounded text-center">
+              <div className="fw-bold fs-5 mb-0">
+                {authorityInfo.name || ""} {authorityInfo.name && authorityInfo.empId ? " / " : ""} {authorityInfo.empId || ""}
+              </div>
+            </div>
+          )}
 
           {/* Filter Tabs */}
           <div className="mb-4">
@@ -197,7 +267,12 @@ function AuthorityDashboard({ role }) {
                   <th scope="col">S.no</th>
                   <th scope="col">Request Title</th>
                   <th scope="col">Status</th>
-                  <th scope="col">Actions</th>
+                  {filterStatus === "PENDING" && (
+                    <>
+                      <th scope="col"></th>
+                      <th scope="col"></th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -219,35 +294,35 @@ function AuthorityDashboard({ role }) {
                           {formatStatus(data.status)}
                         </span>
                       </td>
-                      <td>
-                        {canTakeAction(data.status) ? (
-                          <div className="d-flex gap-2">
+                      {filterStatus === "PENDING" && (
+                        <>
+                          <td>
                             <button
                               className="btn btn-sm btn-success"
                               onClick={() => handleStatusUpdate(data.id, true)}
-                              disabled={isLoading}
+                              disabled={isLoading || !canTakeAction(data.status)}
+                              title="Approve"
                             >
-                              <i className="bi bi-check-circle me-1"></i>
-                              Approve
+                              <i className="bi bi-check-circle"></i>
                             </button>
+                          </td>
+                          <td>
                             <button
                               className="btn btn-sm btn-danger"
                               onClick={() => handleStatusUpdate(data.id, false)}
-                              disabled={isLoading}
+                              disabled={isLoading || !canTakeAction(data.status)}
+                              title="Reject"
                             >
-                              <i className="bi bi-x-circle me-1"></i>
-                              Reject
+                              <i className="bi bi-x-circle"></i>
                             </button>
-                          </div>
-                        ) : (
-                          <span className="text-muted">No action available</span>
-                        )}
-                      </td>
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="text-center py-5 text-muted">
+                    <td colSpan={filterStatus === "PENDING" ? 5 : 3} className="text-center py-5 text-muted">
                       <i className="bi bi-inbox fs-1 d-block mb-2"></i>
                       No Records Found
                     </td>

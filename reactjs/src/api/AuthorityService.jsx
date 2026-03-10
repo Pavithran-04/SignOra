@@ -23,3 +23,8 @@ export const getFormDetails = async (formId) => {
   const response = await axiosInstance.get(`/forms/${formId}`);
   return response;
 };
+export const getAuthorityByUserId = async (userId) => {
+  const response = await axiosInstance.get(`/authority/user/${userId}`);
+  return response;
+};
+

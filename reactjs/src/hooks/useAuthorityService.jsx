@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getRequestForm, updateRequestStatus, getFormDetails } from "../api/AuthorityService";
+import { getRequestForm, updateRequestStatus, getFormDetails, getAuthorityByUserId } from "../api/AuthorityService";
 
 
 const useAuthorityService = () => {
@@ -105,12 +105,43 @@ const useAuthorityService = () => {
     }
   };
 
+  const getAuthority = async (data) => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const userId = typeof data === 'object' ? data.userId : data;
+      const response = await getAuthorityByUserId(userId);
+
+      return response;
+    } catch (error) {
+      let errorMessage = "Failed to fetch authority details. Please try again.";
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData?.validationErrorInfo && Array.isArray(errorData.validationErrorInfo) && errorData.validationErrorInfo.length > 0) {
+          errorMessage = errorData.validationErrorInfo[0].message || errorMessage;
+        } else if (errorData?.message) {
+          errorMessage = errorData.message;
+        } else if (errorData?.error) {
+          errorMessage = errorData.error;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      setError(errorMessage);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     error,
     getRequestDetails,
     updateStatus,
     getForm,
+    getAuthority,
   };
 };
 

@@ -170,35 +170,6 @@ function Login() {
         }
         const role = loginResponse?.role?.toUpperCase();
         if (role === "STUDENT") {
-          // Fetch student info during login
-          try {
-            // First get forms to get studentId
-            const formsResponse = await getRequestDetails({
-              identifier: loginResponse.id,
-              role: "STUDENT",
-            });
-
-            const studentId = formsResponse.data?.studentId;
-            if (studentId) {
-              // Call getStudent API to get student details
-              const studentResponse = await getStudent({ studentId });
-              const studentData = studentResponse.data;
-              if (studentData) {
-                // Store student info in localStorage
-                const studentInfo = {
-                  name: `${studentData.firstName || ""} ${studentData.lastName || ""}`.trim(),
-                  rollNo: studentData.rollNo || "",
-                };
-                localStorage.setItem(
-                  "studentInfo",
-                  JSON.stringify(studentInfo),
-                );
-              }
-            }
-          } catch (err) {
-            console.error("Error fetching student info during login:", err);
-          }
-
           navigator(`/student?id=${loginResponse?.id}`);
         } else if (role === "FACULTY") {
           navigator(`/faculty?id=${loginResponse?.id}`);
