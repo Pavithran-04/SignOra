@@ -31,7 +31,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         List<Department> departmentList = departmentRepository.findAllByCollegeId(createDepartmentRequest.getCollegeId());
 
         if (!departmentList.isEmpty() &&
-                departmentList.stream().anyMatch(department -> department.getName().equals(createDepartmentRequest.getName()))) {
+                departmentList.stream().anyMatch(department -> department.getName().trim().equalsIgnoreCase(createDepartmentRequest.getName().trim()))) {
             throw new RuntimeException("Duplicate department for this college");
         }
 

@@ -41,11 +41,12 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityImplementationObjectCreation(HttpSecurity securityPlan) throws Exception {
         securityPlan.csrf(AbstractHttpConfigurer::disable);
         securityPlan.cors(Customizer.withDefaults());
+
         securityPlan.authorizeHttpRequests(request -> request
                 .requestMatchers("/auth/token", "/admin/user/register", "/login", "/form").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/admin").hasAnyRole("ADMIN")
-                .requestMatchers("/request", "/certificate").hasAnyRole("STUDENT")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/request", "/certificate").hasRole("STUDENT")
                 .anyRequest().authenticated()
         );
 
@@ -79,7 +80,4 @@ public class SecurityConfiguration {
 
         return source;
     }
-
 }
-
-

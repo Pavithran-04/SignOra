@@ -21,7 +21,7 @@ export default function AddAuthority() {
 
   const designationOptions = [
     { value: "Faculty", label: "Faculty" },
-    { value: "HOD", label: "HOD" },
+    { value: "HOD", label: "Head Of The Department" },
     { value: "Principal", label: "Principal" },
   ];
 

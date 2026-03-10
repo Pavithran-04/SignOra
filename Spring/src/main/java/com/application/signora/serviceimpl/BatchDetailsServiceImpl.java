@@ -36,7 +36,7 @@ public class BatchDetailsServiceImpl implements BatchDetailsService {
             throw new RuntimeException("Kindly enter the valid year info");
         }
 
-        Department department = departmentUtil.getDeaprtment(createBatchDetailsRequest.getDepartmentId());
+        Department department = departmentUtil.getDepartment(createBatchDetailsRequest.getDepartmentId());
 
         if(!batchDetailsUtil.isValidBatchDetail(createBatchDetailsRequest)) {
             throw new RuntimeException("Duplicate batch details are not allowed for the same department");

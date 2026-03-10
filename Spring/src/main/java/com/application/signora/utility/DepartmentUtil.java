@@ -13,7 +13,7 @@ public class DepartmentUtil {
     @Autowired
     DepartmentRepository departmentRepository;
 
-    public Department getDeaprtment(Long departmentId) {
+    public Department getDepartment(Long departmentId) {
         return departmentRepository.findById(departmentId).get();
     }
 }

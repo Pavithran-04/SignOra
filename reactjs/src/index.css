@@ -66,3 +66,36 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+.content-success-overlay {
+  position: fixed;
+  top: 80px;             /* stays within admin content */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1055;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.content-success-overlay > * {
+  pointer-events: auto;
+}
+
+.toast-message {
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  color: white;
+  min-width: 250px;
+  text-align: center;
+}
+
+/* 🟢 Success */
+.toast-success {
+  background-color: #28a745;
+}
+
+/* 🔴 Error */
+.toast-error {
+  background-color: #dc3545;
+}

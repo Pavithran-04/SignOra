@@ -28,7 +28,10 @@ export default function AdminDashboard() {
       >
         <h4 className="text-center mb-4">Admin Panel</h4>
 
-        <button className="btn btn-dark w-100 text-start mb-2" onClick={() => setOpenCollege(!openCollege)}>
+        <button
+          className="btn btn-dark w-100 text-start mb-2"
+          onClick={() => setOpenCollege(!openCollege)}
+        >
           College
         </button>
         {openCollege && (
@@ -39,7 +42,10 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        <button className="btn btn-dark w-100 text-start mb-2" onClick={() => setOpenDept(!openDept)}>
+        <button
+          className="btn btn-dark w-100 text-start mb-2"
+          onClick={() => setOpenDept(!openDept)}
+        >
           Department
         </button>
         {openDept && (
@@ -50,7 +56,10 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        <button className="btn btn-dark w-100 text-start mb-2" onClick={() => setOpenBatch(!openBatch)}>
+        <button
+          className="btn btn-dark w-100 text-start mb-2"
+          onClick={() => setOpenBatch(!openBatch)}
+        >
           Batch
         </button>
         {openBatch && (
@@ -61,7 +70,10 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        <button className="btn btn-dark w-100 text-start mb-2" onClick={() => setOpenAuthority(!openAuthority)}>
+        <button
+          className="btn btn-dark w-100 text-start mb-2"
+          onClick={() => setOpenAuthority(!openAuthority)}
+        >
           Authority
         </button>
         {openAuthority && (
@@ -72,7 +84,10 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        <button className="btn btn-dark w-100 text-start mb-2" onClick={() => setOpenStudent(!openStudent)}>
+        <button
+          className="btn btn-dark w-100 text-start mb-2"
+          onClick={() => setOpenStudent(!openStudent)}
+        >
           Student
         </button>
         {openStudent && (
@@ -86,12 +101,15 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <div
-        className="flex-grow-1 p-5 bg-light d-flex align-items-center justify-content-center dashboard-fade"
+        className="flex-grow-1 p-5 bg-light d-flex align-items-center justify-content-center dashboard-fade position-relative"
         style={{
           marginLeft: `${SIDEBAR_WIDTH}px`,
           minHeight: "100vh",
         }}
       >
+        {/* ✅ Overlay root for success messages */}
+        <div id="content-overlay-root"></div>
+
         <div className="container-fluid text-center">
           {showWelcome && (
             <>
@@ -301,6 +319,21 @@ export default function AdminDashboard() {
           25%  { opacity: 1; transform: scale(1.05); }
           50%  { opacity: 0.4; transform: scale(1); }
           100% { opacity: 0.4; transform: scale(1); }
+        }
+
+        /* ✅ Overlay message positioning */
+        .content-success-overlay {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 50;
+          pointer-events: none;
+        }
+
+        .content-success-overlay .alert {
+          pointer-events: auto;
         }
       `}</style>
     </div>
