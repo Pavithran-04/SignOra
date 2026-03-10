@@ -11,4 +11,10 @@ public interface RequestFormInfoProjection {
     String getRequestTitle();
 
     RequestStatus getStatus();
+
+    Boolean getRequiredHodApproval();
+
+    Boolean getRequiredPrincipalApproval();
+
+    String getCertificateLink();
 }

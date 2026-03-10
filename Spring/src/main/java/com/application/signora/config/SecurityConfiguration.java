@@ -42,11 +42,10 @@ public class SecurityConfiguration {
         securityPlan.csrf(AbstractHttpConfigurer::disable);
         securityPlan.cors(Customizer.withDefaults());
         securityPlan.authorizeHttpRequests(request -> request
-                .requestMatchers("/admin").hasAnyRole("ADMIN")
-                .requestMatchers("/auth/token", "/admin/user/register", "/login").permitAll()
-                .requestMatchers("/request").hasAnyRole("STUDENT")
-                .requestMatchers("/form").permitAll()
+                .requestMatchers("/auth/token", "/admin/user/register", "/login", "/form").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/admin").hasAnyRole("ADMIN")
+                .requestMatchers("/request", "/certificate").hasAnyRole("STUDENT")
                 .anyRequest().authenticated()
         );
 
