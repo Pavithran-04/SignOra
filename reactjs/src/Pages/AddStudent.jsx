@@ -8,180 +8,157 @@ import Toast from "../Component/Toast";
 import axiosInstance from "../api/CommonUrl";
 
 export default function AddStudent() {
-
   const navigate = useNavigate();
 
-  const [firstName,setFirstName] = useState("");
-  const [lastName,setLastName] = useState("");
-  const [rollNumber,setRollNumber] = useState("");
-  const [username,setUsername] = useState("");
-  const [password,setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [rollNumber, setRollNumber] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [showPassword,setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [college,setCollege] = useState(null);
-  const [department,setDepartment] = useState(null);
-  const [batch,setBatch] = useState(null);
+  const [college, setCollege] = useState(null);
+  const [department, setDepartment] = useState(null);
+  const [batch, setBatch] = useState(null);
 
-  const [collegeOptions,setCollegeOptions] = useState([]);
-  const [departmentOptions,setDepartmentOptions] = useState([]);
-  const [batchOptions,setBatchOptions] = useState([]);
+  const [collegeOptions, setCollegeOptions] = useState([]);
+  const [departmentOptions, setDepartmentOptions] = useState([]);
+  const [batchOptions, setBatchOptions] = useState([]);
 
-  const [errors,setErrors] = useState({});
-  const [toastMsg,setToastMsg] = useState("");
-  const [toastType,setToastType] = useState("success");
+  const [errors, setErrors] = useState({});
+  const [toastMsg, setToastMsg] = useState("");
+  const [toastType, setToastType] = useState("success");
 
   const nameRegex = /^[A-Za-z ]+$/;
 
   /* FETCH COLLEGES */
 
-  useEffect(()=>{
-
-    const fetchColleges = async()=>{
-
-      try{
-
+  useEffect(() => {
+    const fetchColleges = async () => {
+      try {
         const res = await axiosInstance.get("/admin/colleges");
 
-        const options = res.data.collegeInfoList.map((c)=>({
-          value:c.id,
-          label:c.name,
-          code:c.code
+        const options = res.data.collegeInfoList.map((c) => ({
+          value: c.id,
+          label: c.name,
+          code: c.code,
         }));
 
         setCollegeOptions(options);
-
-      }catch(error){
-
+      } catch (error) {
         console.error(error);
         setToastType("error");
         setToastMsg("Failed to load colleges");
-
       }
-
     };
 
     fetchColleges();
-
-  },[]);
+  }, []);
 
   /* FETCH DEPARTMENTS */
 
-  const fetchDepartments = async(collegeId)=>{
+  const fetchDepartments = async (collegeId) => {
+    try {
+      const res = await axiosInstance.get(
+        `/admin/departments?collegeId=${collegeId}`,
+      );
 
-    try{
-
-      const res = await axiosInstance.get(`/admin/departments?collegeId=${collegeId}`);
-
-      const options = res.data.departments.map((d)=>({
-        value:d.id,
-        label:d.name
+      const options = res.data.departments.map((d) => ({
+        value: d.id,
+        label: d.name,
       }));
 
       setDepartmentOptions(options);
-
-    }catch(error){
-
+    } catch (error) {
       console.error(error);
       setToastType("error");
       setToastMsg("Failed to load departments");
-
     }
-
   };
 
   /* FETCH BATCHES */
 
-  const fetchBatches = async(departmentId)=>{
-
-    try{
-
-      const res = await axiosInstance.get(`/admin/batch-details?departmentId=${departmentId}`);
+  const fetchBatches = async (departmentId) => {
+    try {
+      const res = await axiosInstance.get(
+        `/admin/batch-details?departmentId=${departmentId}`,
+      );
 
       const batchList = res.data.batchDetailsByDepartment.batchDetails || [];
 
-      const options = batchList.map((b)=>({
-        value:b.id,
-        label:`${b.startYear} - ${b.endYear}`
+      const options = batchList.map((b) => ({
+        value: b.id,
+        label: `${b.startYear} - ${b.endYear}`,
       }));
 
       setBatchOptions(options);
-
-    }catch(error){
-
+    } catch (error) {
       console.error(error);
       setToastType("error");
       setToastMsg("Failed to load batches");
-
     }
-
   };
 
   /* PASSWORD STRENGTH */
 
-  const getPasswordStrength=(pwd)=>{
+  const getPasswordStrength = (pwd) => {
+    let score = 0;
 
-    let score=0;
+    if (pwd.length >= 8) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[a-z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
 
-    if(pwd.length>=8) score++;
-    if(/[A-Z]/.test(pwd)) score++;
-    if(/[a-z]/.test(pwd)) score++;
-    if(/[0-9]/.test(pwd)) score++;
-    if(/[^A-Za-z0-9]/.test(pwd)) score++;
-
-    if(score<=2) return {label:"Weak",color:"danger"};
-    if(score<=4) return {label:"Medium",color:"warning"};
-    return {label:"Strong",color:"success"};
-
+    if (score <= 2) return { label: "Weak", color: "danger" };
+    if (score <= 4) return { label: "Medium", color: "warning" };
+    return { label: "Strong", color: "success" };
   };
 
   /* VALIDATION */
 
-  const validateField=(field,value)=>{
-
-    if(field==="firstName"){
-      if(!value.trim()) return "First name is required";
-      if(!nameRegex.test(value)) return "Only letters allowed";
+  const validateField = (field, value) => {
+    if (field === "firstName") {
+      if (!value.trim()) return "First name is required";
+      if (!nameRegex.test(value)) return "Only letters allowed";
     }
 
-    if(field==="lastName"){
-      if(!value.trim()) return "Last name is required";
-      if(!nameRegex.test(value)) return "Only letters allowed";
+    if (field === "lastName") {
+      if (!value.trim()) return "Last name is required";
+      if (!nameRegex.test(value)) return "Only letters allowed";
     }
 
-    if(field==="rollNumber"){
-      if(!value.trim()) return "Roll number is required";
+    if (field === "rollNumber") {
+      if (!value.trim()) return "Roll number is required";
     }
 
-    if(field==="username"){
-      if(!value.trim()) return "Username required";
-      if(value.length<4) return "Username must have at least 4 characters";
+    if (field === "username") {
+      if (!value.trim()) return "Username required";
+      if (value.length < 4) return "Username must have at least 4 characters";
     }
 
-    if(field==="password"){
-      if(!value) return "Password required";
-      if(getPasswordStrength(value).label==="Weak") return "Password too weak";
+    if (field === "password") {
+      if (!value) return "Password required";
+      if (getPasswordStrength(value).label === "Weak")
+        return "Password too weak";
     }
 
     return "";
-
   };
 
-  const handleValidation=(field,value)=>{
+  const handleValidation = (field, value) => {
+    const error = validateField(field, value);
 
-    const error = validateField(field,value);
-
-    setErrors(prev=>({
+    setErrors((prev) => ({
       ...prev,
-      [field]:error
+      [field]: error,
     }));
-
   };
 
   /* COLLEGE CHANGE */
 
-  const handleCollegeChange=(v)=>{
-
+  const handleCollegeChange = (v) => {
     setCollege(v);
     setDepartment(null);
     setBatch(null);
@@ -189,105 +166,121 @@ export default function AddStudent() {
     setDepartmentOptions([]);
     setBatchOptions([]);
 
-    if(v){
+    if (v) {
       fetchDepartments(v.value);
     }
-
   };
 
   /* DEPARTMENT CHANGE */
 
-  const handleDepartmentChange=(v)=>{
-
+  const handleDepartmentChange = (v) => {
     setDepartment(v);
     setBatch(null);
     setBatchOptions([]);
 
-    if(v){
+    if (v) {
       fetchBatches(v.value);
     }
-
   };
 
   /* SUBMIT */
-
-  const handleSubmit=(e)=>{
-
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newErrors={
-      firstName:validateField("firstName",firstName),
-      lastName:validateField("lastName",lastName),
-      rollNumber:validateField("rollNumber",rollNumber),
-      username:validateField("username",username),
-      password:validateField("password",password),
-      college:!college?"College required":"",
-      department:!department?"Department required":"",
-      batch:!batch?"Batch required":""
+    const newErrors = {
+      firstName: validateField("firstName", firstName),
+      lastName: validateField("lastName", lastName),
+      rollNumber: validateField("rollNumber", rollNumber),
+      username: validateField("username", username),
+      password: validateField("password", password),
+      college: !college ? "College required" : "",
+      department: !department ? "Department required" : "",
+      batch: !batch ? "Batch required" : "",
     };
 
     setErrors(newErrors);
 
-    if(Object.values(newErrors).some(err=>err)){
+    if (Object.values(newErrors).some((err) => err)) {
       setToastType("error");
       setToastMsg("Please fix validation errors");
       return;
     }
 
+    try {
+      const payload = {
+        firstName: firstName,
+        lastName: lastName,
+        rollNo: rollNumber,
+        username: username,
+        password: password,
+        batchId: batch.value,
+      };
 
-    console.log({
-      firstName,
-      lastName,
-      rollNumber,
-      username,
-      password,
-      collegeId:college.value,
-      departmentId:department.value,
-      batchId:batch.value
-    });
+      const response = await axiosInstance.post("/admin/student", payload);
 
+      const data = response.data;
 
-    setToastType("success");
-    setToastMsg("Student created successfully");
+      // Backend validation error
+      if (
+        data?.status === "Bad Request" &&
+        data?.validationErrorInfo?.length > 0
+      ) {
+        setToastType("error");
+        setToastMsg(data.validationErrorInfo[0].message);
+        return;
+      }
 
-    setFirstName("");
-    setLastName("");
-    setRollNumber("");
-    setUsername("");
-    setPassword("");
-    setCollege(null);
-    setDepartment(null);
-    setBatch(null);
+      // SUCCESS
+      setToastType("success");
+      setToastMsg("Student created successfully");
 
+      setFirstName("");
+      setLastName("");
+      setRollNumber("");
+      setUsername("");
+      setPassword("");
+      setCollege(null);
+      setDepartment(null);
+      setBatch(null);
+    } catch (error) {
+      console.error("Create student failed:", error);
+
+      if (
+        error?.response?.data?.validationErrorInfo &&
+        error.response.data.validationErrorInfo.length > 0
+      ) {
+        setToastMsg(error.response.data.validationErrorInfo[0].message);
+      } else if (error?.response?.data?.message) {
+        setToastMsg(error.response.data.message);
+      } else {
+        setToastMsg("FAILED TO CREATE STUDENT");
+      }
+
+      setToastType("error");
+    }
   };
 
-  return(
-
+  return (
     <>
-
       {toastMsg &&
         ReactDOM.createPortal(
           <div className="content-success-overlay">
             <Toast
               message={toastMsg}
               type={toastType}
-              onClose={()=>setToastMsg("")}
+              onClose={() => setToastMsg("")}
               duration={3000}
             />
           </div>,
-          document.getElementById("content-overlay-root")
-        )
-      }
+          document.getElementById("content-overlay-root"),
+        )}
 
       <div className="w-100 min-vh-100 p-4">
-
         <div className="d-flex align-items-center justify-content-center">
-
           <div
             className="card shadow border-0 p-5"
-            style={{maxWidth:"700px",width:"100%"}}
+            style={{ maxWidth: "700px", width: "100%" }}
           >
-
             <h2 className="fw-bold text-center mb-4">Add Student</h2>
 
             <p className="text-muted text-center mb-4">
@@ -295,139 +288,130 @@ export default function AddStudent() {
             </p>
 
             <form onSubmit={handleSubmit}>
-
               {/* FIRST NAME */}
 
               <div className="mb-4 text-start">
-
                 <label className="form-label fw-semibold">First Name</label>
 
                 <input
                   type="text"
                   className="form-control form-control-lg"
                   value={firstName}
-                  onChange={(e)=>{
+                  onChange={(e) => {
                     setFirstName(e.target.value);
-                    handleValidation("firstName",e.target.value);
+                    handleValidation("firstName", e.target.value);
                   }}
                 />
 
                 {errors.firstName && (
                   <small className="text-danger">{errors.firstName}</small>
                 )}
-
               </div>
 
               {/* LAST NAME */}
 
               <div className="mb-4 text-start">
-
                 <label className="form-label fw-semibold">Last Name</label>
 
                 <input
                   type="text"
                   className="form-control form-control-lg"
                   value={lastName}
-                  onChange={(e)=>{
+                  onChange={(e) => {
                     setLastName(e.target.value);
-                    handleValidation("lastName",e.target.value);
+                    handleValidation("lastName", e.target.value);
                   }}
                 />
 
                 {errors.lastName && (
                   <small className="text-danger">{errors.lastName}</small>
                 )}
-
               </div>
 
               {/* ROLL NUMBER */}
 
               <div className="mb-4 text-start">
-
                 <label className="form-label fw-semibold">Roll Number</label>
 
                 <input
                   type="text"
                   className="form-control form-control-lg"
                   value={rollNumber}
-                  onChange={(e)=>{
+                  onChange={(e) => {
                     setRollNumber(e.target.value);
-                    handleValidation("rollNumber",e.target.value);
+                    handleValidation("rollNumber", e.target.value);
                   }}
                 />
 
                 {errors.rollNumber && (
                   <small className="text-danger">{errors.rollNumber}</small>
                 )}
-
               </div>
 
               {/* USERNAME */}
 
               <div className="mb-4 text-start">
-
                 <label className="form-label fw-semibold">Username</label>
 
                 <input
                   type="text"
                   className="form-control form-control-lg"
                   value={username}
-                  onChange={(e)=>{
+                  onChange={(e) => {
                     setUsername(e.target.value);
-                    handleValidation("username",e.target.value);
+                    handleValidation("username", e.target.value);
                   }}
                 />
 
                 {errors.username && (
                   <small className="text-danger">{errors.username}</small>
                 )}
-
               </div>
 
               {/* PASSWORD */}
 
               <div className="mb-4 text-start">
-
                 <label className="form-label fw-semibold">Password</label>
 
                 <div className="input-group input-group-lg">
-
                   <input
-                    type={showPassword?"text":"password"}
+                    type={showPassword ? "text" : "password"}
                     className="form-control"
                     value={password}
-                    onChange={(e)=>{
+                    onChange={(e) => {
                       setPassword(e.target.value);
-                      handleValidation("password",e.target.value);
+                      handleValidation("password", e.target.value);
                     }}
                   />
 
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
-                    onClick={()=>setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword(!showPassword)}
                   >
-                    <i className={`bi ${showPassword ? "bi-eye-slash":"bi-eye"}`}></i>
+                    <i
+                      className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
+                    ></i>
                   </button>
-
                 </div>
 
                 {errors.password && (
                   <small className="text-danger">{errors.password}</small>
-                )}
+                )}reactjs/src/Pages/AddBatch.jsx
 
                 {password && (
-                  <div className={`form-text text-${getPasswordStrength(password).color}`}>
-                    Password strength: <b>{getPasswordStrength(password).label}</b>
+                  <div
+                    className={`form-text text-${getPasswordStrength(password).color}`}
+                  >
+                    Password strength:{" "}
+                    <b>{getPasswordStrength(password).label}</b>
                   </div>
                 )}
-
               </div>
 
               {/* COLLEGE */}
 
               <div className="mb-4 text-start">
-
                 <label className="form-label fw-semibold">College</label>
 
                 <Select
@@ -437,20 +421,18 @@ export default function AddStudent() {
                   placeholder="Select college"
                   isSearchable
                   maxMenuHeight={160}
-                  formatOptionLabel={(option)=>(
+                  formatOptionLabel={(option) => (
                     <div className="d-flex justify-content-between">
                       <span>{option.label}</span>
                       <span className="text-muted">{option.code}</span>
                     </div>
                   )}
                 />
-
               </div>
 
               {/* DEPARTMENT */}
 
               <div className="mb-4 text-start">
-
                 <label className="form-label fw-semibold">Department</label>
 
                 <Select
@@ -462,13 +444,11 @@ export default function AddStudent() {
                   maxMenuHeight={160}
                   isDisabled={!college}
                 />
-
               </div>
 
               {/* BATCH */}
 
               <div className="mb-4 text-start">
-
                 <label className="form-label fw-semibold">Batch</label>
 
                 <Select
@@ -480,11 +460,9 @@ export default function AddStudent() {
                   maxMenuHeight={160}
                   isDisabled={!department}
                 />
-
               </div>
 
               <div className="d-flex gap-3 mt-4">
-
                 <button type="submit" className="btn btn-dark w-50 py-2">
                   Create
                 </button>
@@ -492,24 +470,15 @@ export default function AddStudent() {
                 <button
                   type="button"
                   className="btn btn-outline-dark w-50 py-2"
-                  onClick={()=>navigate("/admin")}
+                  onClick={() => navigate("/admin")}
                 >
                   Cancel
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         </div>
-
       </div>
-
     </>
-
   );
-
 }
-
