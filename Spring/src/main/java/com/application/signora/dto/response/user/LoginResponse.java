@@ -18,4 +18,6 @@ public class LoginResponse extends DefaultResponseEntity {
     private String username;
 
     private String role;
+
+    private Long userId;
 }
