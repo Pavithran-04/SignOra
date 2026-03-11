@@ -37,6 +37,9 @@ public class UserServiceImpl implements UserService {
     AuthorityRepository authorityRepository;
 
     @Autowired
+    AdminRepository adminRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
@@ -57,6 +60,8 @@ public class UserServiceImpl implements UserService {
         Long userId;
         if(loggedUser.getRole().equals("STUDENT")) {
             userId = studentRepository.findByUserId(loggedUser.getId()).get().getId();
+        } else if(loggedUser.getRole().equals("ADMIN")){
+            userId = adminRepository.findByRegisteredUserId(loggedUser.getId()).getId();
         } else {
             userId = authorityRepository.findByUser_Id(loggedUser.getId()).get().getId();
         }
