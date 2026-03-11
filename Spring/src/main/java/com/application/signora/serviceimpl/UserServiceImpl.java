@@ -51,14 +51,21 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(
                 loginUserRequest.getPassword(),
                 loggedUser.getPassword())) {
-
             throw new RuntimeException("Username or Password is incorrect");
+        }
+
+        Long userId;
+        if(loggedUser.getRole().equals("STUDENT")) {
+            userId = studentRepository.findByUserId(loggedUser.getId()).get().getId();
+        } else {
+            userId = authorityRepository.findByUser_Id(loggedUser.getId()).get().getId();
         }
 
         return LoginResponse.builder()
                 .id(loggedUser.getId())
                 .role(loggedUser.getRole())
                 .username(loggedUser.getUsername())
+                .userId(userId)
                 .build();
     }
 
