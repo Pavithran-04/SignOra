@@ -40,7 +40,7 @@ function StudentDashboard({ role }) {
 
       if (userId) {
         try {
-          const studentResponse = await getStudent({ userId: userId });
+          const studentResponse = await getStudent({ studentId: userId });
           const studentData = studentResponse.data;
           if (studentData) {
             const fullName =

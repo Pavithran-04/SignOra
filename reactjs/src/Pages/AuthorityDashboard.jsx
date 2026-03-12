@@ -219,11 +219,22 @@ function AuthorityDashboard({ role }) {
             </button>
           </div>
 
-          {/* Authority Information */}
+          {/* Authority Information - Name and Emp Id */}
           {(authorityInfo.name || authorityInfo.empId) && (
-            <div className="mb-4 p-3 bg-light rounded text-center">
-              <div className="fw-bold fs-5 mb-0">
-                {authorityInfo.name || ""} {authorityInfo.name && authorityInfo.empId ? " / " : ""} {authorityInfo.empId || ""}
+            <div className="mb-4 p-3 bg-light rounded">
+              <div className="d-flex flex-wrap gap-3 align-items-center">
+                {authorityInfo.name && (
+                  <div>
+                    <span className="text-muted small">Name</span>
+                    <div className="fw-semibold">{authorityInfo.name}</div>
+                  </div>
+                )}
+                {authorityInfo.empId && (
+                  <div>
+                    <span className="text-muted small">Emp Id</span>
+                    <div className="fw-semibold">{authorityInfo.empId}</div>
+                  </div>
+                )}
               </div>
             </div>
           )}
