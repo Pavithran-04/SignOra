@@ -73,7 +73,7 @@ public class AuthorityServiceImpl implements AuthorityService {
                         .build()
         );
 
-        if(userServiceUtil.isStaff(request.getRole())) {
+        if(authorityRepository.existsByEmpId(request.getIdentifier())) {
             Authority staff = authorityRepository.findByEmpId(request.getIdentifier())
                     .orElseThrow(() -> new RuntimeException("Invalid employee id"));
             if(!staff.getDesignation().equals(request.getRole())) {
@@ -83,7 +83,7 @@ public class AuthorityServiceImpl implements AuthorityService {
                 throw new RuntimeException(request.getIdentifier() + " already has been registered");
             staff.setUser(savedUser);
             authorityRepository.save(staff);
-        } else if (userServiceUtil.isStudent(request.getRole())) {
+        } else if (studentRepository.existsByRollNo(request.getIdentifier())) {
             Student student = studentRepository.findByRollNo(request.getIdentifier())
                     .orElseThrow(() -> new RuntimeException("Invalid roll number"));
             if(!Objects.isNull(student.getUser()))
