@@ -1,4 +1,5 @@
 import RequestForm from "./Component/RequestForm";
+import ViewForm from "./Pages/ViewForm";
 import { Routes, Route } from "react-router-dom";
 import Login from "./Pages/Login";
 import StudentDashboard from "./Pages/StudentDashboard";
@@ -20,6 +21,7 @@ function App() {
       <Route path="/faculty" element={<AuthorityDashboard role="FACULTY" />} />
       <Route path="/hod" element={<AuthorityDashboard role="HOD" />} />
       <Route path="/principal" element={<AuthorityDashboard role="PRINCIPAL" />} />
+      <Route path="/form" element={<ViewForm />} />
       <Route path="/student/requestForm" element={<RequestForm />} />
       <Route path="/admin" element={<AdminDashboard />}>
         <Route path="college/add" element={<AddCollege />} />

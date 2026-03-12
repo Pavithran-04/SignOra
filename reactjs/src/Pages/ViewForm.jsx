@@ -152,16 +152,6 @@ function ViewForm() {
             </div>
           )}
 
-          {/* Form ID (if needed for reference) */}
-          {formData.id && (
-            <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">Form ID</label>
-              <div className="form-control form-control-lg" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
-                {formData.id}
-              </div>
-            </div>
-          )}
-
           {/* Back Button */}
           <div className="d-flex justify-content-end mt-4">
             <button
