@@ -274,6 +274,7 @@ function AuthorityDashboard({ role }) {
                   <th scope="col">S.no</th>
                   <th scope="col">Request Title</th>
                   <th scope="col">Status</th>
+                  <th scope="col">Certificate</th>
                   {filterStatus === "PENDING" && <th scope="col">Actions</th>}
                 </tr>
               </thead>
@@ -295,6 +296,21 @@ function AuthorityDashboard({ role }) {
                         <span className={getStatusBadgeClass(data.status)}>
                           {formatStatus(data.status)}
                         </span>
+                      </td>
+                      <td>
+                        {data.certificateLink ? (
+                          <a
+                            href={data.certificateLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary text-decoration-none"
+                            title="View certificate"
+                          >
+                            <i className="bi bi-award-fill fs-5" aria-label="Certificate" />
+                          </a>
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
                       </td>
                       {filterStatus === "PENDING" && (
                         <td className="text-nowrap">
@@ -320,7 +336,7 @@ function AuthorityDashboard({ role }) {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={filterStatus === "PENDING" ? 4 : 3} className="text-center py-5 text-muted">
+                    <td colSpan={filterStatus === "PENDING" ? 5 : 4} className="text-center py-5 text-muted">
                       <i className="bi bi-inbox fs-1 d-block mb-2"></i>
                       No Records Found
                     </td>
