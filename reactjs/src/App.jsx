@@ -9,6 +9,7 @@ import AddDepartment from "./Pages/AddDepartment";
 import AddBatch from "./Pages/AddBatch";
 import AddAuthority from "./Pages/AddAuthority";
 import AddStudent from "./Pages/AddStudent";
+import RegisterAuthority from "./Pages/RegisterAuthority";
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         <Route path="department/add" element={<AddDepartment />} />
         <Route path="batch/add" element={<AddBatch />} />
         <Route path="authority/add" element={<AddAuthority />} />
+        <Route path="authority/register" element={<RegisterAuthority />} />
         <Route path="student/add" element={<AddStudent />} />
       </Route>
     </Routes>

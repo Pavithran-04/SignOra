@@ -79,6 +79,7 @@ export default function AdminDashboard() {
         {openAuthority && (
           <div className="ps-3 mb-3">
             <Link to="authority/add" className="submenu-link">Add Authority</Link>
+            <Link to="authority/register" className="submenu-link">Register Authority</Link>
             <Link to="authority/update" className="submenu-link">Update Authority</Link>
             <Link to="authority/delete" className="submenu-link">Delete Authority</Link>
           </div>
@@ -188,6 +189,7 @@ export default function AdminDashboard() {
                         <p className="text-muted">Manage faculty & admins.</p>
                         <ul className="text-start small text-muted ps-3">
                           <li>Add authorities</li>
+                          <li>Register authorities</li>
                           <li>Update authority details</li>
                           <li>Remove inactive authorities</li>
                         </ul>

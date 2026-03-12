@@ -1,212 +1,479 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Select from "react-select";
+import ReactDOM from "react-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import Toast from "../Component/Toast";
+import axiosInstance from "../api/CommonUrl";
 
 export default function AddAuthority() {
-  const navigate = useNavigate();
 
-  const [name, setName] = useState("");
-  const [empId, setEmpId] = useState("");
-  const [designation, setDesignation] = useState(null);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [college, setCollege] = useState(null);
-  const [department, setDepartment] = useState(null);
-  const [isAdvisor, setIsAdvisor] = useState(false);
-  const [batch, setBatch] = useState(null);
-  const [toastMsg, setToastMsg] = useState("");
+const navigate = useNavigate();
 
-  const designationOptions = [
-    { value: "Faculty", label: "Faculty" },
-    { value: "HOD", label: "Head Of The Department" },
-    { value: "Principal", label: "Principal" },
-  ];
+const [firstName,setFirstName] = useState("");
+const [lastName,setLastName] = useState("");
+const [employeeId,setEmployeeId] = useState("");
 
-  const collegeOptions = [
-    { value: "ABC College of Engineering", label: "ABC College of Engineering" },
-    { value: "XYZ Institute of Technology", label: "XYZ Institute of Technology" },
-    { value: "DEF Arts & Science College", label: "DEF Arts & Science College" },
-  ];
+const [designation,setDesignation] = useState(null);
 
-  const departmentOptions = [
-    { value: "CSE", label: "CSE" },
-    { value: "IT", label: "IT" },
-    { value: "ECE", label: "ECE" },
-    { value: "EEE", label: "EEE" },
-    { value: "MECH", label: "MECH" },
-  ];
+const [college,setCollege] = useState(null);
+const [department,setDepartment] = useState(null);
+const [batch,setBatch] = useState(null);
 
-  const batchOptions = [
-    { value: "2022-2026", label: "2022 - 2026" },
-    { value: "2023-2027", label: "2023 - 2027" },
-    { value: "2024-2028", label: "2024 - 2028" },
-  ];
+const [isAdvisor,setIsAdvisor] = useState(false);
 
-  const getPasswordStrength = (pwd) => {
-    let score = 0;
-    if (pwd.length >= 8) score++;
-    if (/[A-Z]/.test(pwd)) score++;
-    if (/[a-z]/.test(pwd)) score++;
-    if (/[0-9]/.test(pwd)) score++;
-    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+const [collegeOptions,setCollegeOptions] = useState([]);
+const [departmentOptions,setDepartmentOptions] = useState([]);
+const [batchOptions,setBatchOptions] = useState([]);
 
-    if (score <= 2) return { label: "Weak", color: "danger" };
-    if (score <= 4) return { label: "Medium", color: "warning" };
-    return { label: "Strong", color: "success" };
-  };
+const [errors,setErrors] = useState({});
+const [toastMsg,setToastMsg] = useState("");
+const [toastType,setToastType] = useState("success");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const nameRegex = /^[A-Za-z ]+$/;
 
-    if (!name || !empId || !designation || !username || !password || !college) {
-      setToastMsg("Please fill all required fields!");
-      return;
-    }
+const designationOptions = [
+{ value:"FACULTY",label:"Faculty"},
+{ value:"HOD",label:"HOD"},
+{ value:"PRINCIPAL",label:"Principal"}
+];
 
-    if (getPasswordStrength(password).label === "Weak") {
-      setToastMsg("Password is too weak. Please use a stronger password.");
-      return;
-    }
+/* FETCH COLLEGES */
 
-    if (isAdvisor && !batch) {
-      setToastMsg("Please select a batch for Faculty Advisor!");
-      return;
-    }
+useEffect(()=>{
 
-    console.log({
-      name,
-      empId,
-      designation: designation.value,
-      username,
-      password,
-      college: college.value,
-      department: department?.value,
-      isAdvisor,
-      batch: batch?.value,
-    });
+const fetchColleges = async()=>{
 
-    setToastMsg("Authority added successfully!");
+try{
 
-    setName("");
-    setEmpId("");
-    setDesignation(null);
-    setUsername("");
-    setPassword("");
-    setCollege(null);
-    setDepartment(null);
-    setIsAdvisor(false);
-    setBatch(null);
-  };
+const res = await axiosInstance.get("/admin/colleges");
 
-  return (
-    <div className="w-100 min-vh-100 p-4">
-      <Toast message={toastMsg} onClose={() => setToastMsg("")} duration={3000} />
+const options = res.data.collegeInfoList.map(c=>({
+value:c.id,
+label:c.name,
+code:c.code
+}));
 
-      <div className="d-flex align-items-center justify-content-center">
-        <div className="card shadow border-0 p-5" style={{ maxWidth: "800px", width: "100%" }}>
-          <h2 className="fw-bold text-center mb-4">Add Authority</h2>
+setCollegeOptions(options);
 
-          <form onSubmit={handleSubmit}>
-            {/* Name */}
-            <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">Name</label>
-              <input className="form-control form-control-lg" value={name} onChange={(e) => setName(e.target.value)} required />
-            </div>
+}
+catch(error){
 
-            {/* Employee ID */}
-            <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">Employee ID</label>
-              <input className="form-control form-control-lg" value={empId} onChange={(e) => setEmpId(e.target.value)} required />
-            </div>
+console.error(error);
+setToastType("error");
+setToastMsg("Failed to load colleges");
 
-            {/* Designation (Enhanced Dropdown) */}
-            <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">Designation</label>
-              <Select
-                options={designationOptions}
-                value={designation}
-                onChange={(val) => {
-                  setDesignation(val);
-                  setDepartment(null);
-                }}
-                isSearchable
-                maxMenuHeight={160}
-                placeholder="Select designation"
-              />
-            </div>
+}
 
-            {/* Username */}
-            <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">Username</label>
-              <input className="form-control form-control-lg" value={username} onChange={(e) => setUsername(e.target.value)} required />
-            </div>
+};
 
-            {/* Password */}
-            <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">Password</label>
-              <div className="input-group input-group-lg">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className="form-control"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button type="button" className="btn btn-outline-secondary" onClick={() => setShowPassword((p) => !p)}>
-                  <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
-                </button>
-              </div>
-            </div>
+fetchColleges();
 
-            {/* College */}
-            <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">College</label>
-              <Select options={collegeOptions} value={college} onChange={setCollege} isSearchable maxMenuHeight={160} />
-            </div>
+},[]);
 
-            {/* Department */}
-            <div className="mb-3 text-start">
-              <label className="form-label fw-semibold">Department</label>
-              <Select
-                options={departmentOptions}
-                value={department}
-                onChange={setDepartment}
-                isDisabled={!designation}
-                isSearchable
-                maxMenuHeight={160}
-              />
-            </div>
+/* FETCH DEPARTMENTS */
 
-            {/* Faculty Advisor */}
-            <div className="form-check mb-4 mt-3 text-start">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                checked={isAdvisor}
-                onChange={(e) => setIsAdvisor(e.target.checked)}
-                disabled={!(designation?.value === "Faculty" || designation?.value === "Principal")}
-              />
-              <label className="form-check-label fw-semibold">Faculty Advisor</label>
-            </div>
+const fetchDepartments = async(collegeId)=>{
 
-            {/* Batch */}
-            <div className="mb-4 text-start">
-              <label className="form-label fw-semibold">Batch</label>
-              <Select options={batchOptions} value={batch} onChange={setBatch} isDisabled={!isAdvisor} isSearchable maxMenuHeight={160} />
-            </div>
+try{
 
-            <div className="d-flex gap-3 mt-4">
-              <button type="submit" className="btn btn-dark w-50 py-2">Create</button>
-              <button type="button" className="btn btn-outline-dark w-50 py-2" onClick={() => navigate("/admin")}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
+const res = await axiosInstance.get(`/admin/departments?collegeId=${collegeId}`);
+
+const options = res.data.departments.map(d=>({
+value:d.id,
+label:d.name
+}));
+
+setDepartmentOptions(options);
+
+}
+catch(error){
+
+console.error(error);
+setToastType("error");
+setToastMsg("Failed to load departments");
+
+}
+
+};
+
+/* FETCH BATCHES */
+
+const fetchBatches = async(departmentId)=>{
+
+try{
+
+const res = await axiosInstance.get(`/admin/batch-details?departmentId=${departmentId}`);
+
+const batchList = res.data.batchDetailsByDepartment.batchDetails || [];
+
+const options = batchList.map(b=>({
+value:b.id,
+label:`${b.startYear} - ${b.endYear}`
+}));
+
+setBatchOptions(options);
+
+}
+catch(error){
+
+console.error(error);
+setToastType("error");
+setToastMsg("Failed to load batches");
+
+}
+
+};
+
+/* VALIDATION */
+
+const validateField = (field,value)=>{
+
+if(field==="firstName"){
+if(!value.trim()) return "First name is required";
+if(!nameRegex.test(value)) return "Only letters allowed";
+}
+
+if(field==="lastName"){
+if(!value.trim()) return "Last name is required";
+if(!nameRegex.test(value)) return "Only letters allowed";
+}
+
+if(field==="employeeId"){
+if(!value.trim()) return "Employee ID is required";
+}
+
+if(field==="designation"){
+if(!value) return "Designation required";
+}
+
+return "";
+
+};
+
+const handleValidation = (field,value)=>{
+
+const error = validateField(field,value);
+
+setErrors(prev=>({
+...prev,
+[field]:error
+}));
+
+};
+
+/* COLLEGE CHANGE */
+
+const handleCollegeChange = (v)=>{
+
+setCollege(v);
+
+setDepartment(null);
+setBatch(null);
+setIsAdvisor(false);
+
+setDepartmentOptions([]);
+setBatchOptions([]);
+
+if(v) fetchDepartments(v.value);
+
+};
+
+/* DEPARTMENT CHANGE */
+
+const handleDepartmentChange = (v)=>{
+
+setDepartment(v);
+
+setBatch(null);
+setBatchOptions([]);
+
+setIsAdvisor(false);
+
+if(v) fetchBatches(v.value);
+
+};
+
+/* SUBMIT */
+
+const handleSubmit = async(e)=>{
+
+e.preventDefault();
+
+const newErrors = {
+
+firstName:validateField("firstName",firstName),
+lastName:validateField("lastName",lastName),
+employeeId:validateField("employeeId",employeeId),
+designation:validateField("designation",designation),
+
+college:!college ? "College required" : "",
+
+department:
+designation?.value !== "PRINCIPAL" && !department
+? "Department required"
+: ""
+
+};
+
+setErrors(newErrors);
+
+if(Object.values(newErrors).some(err=>err)){
+setToastType("error");
+setToastMsg("Please fix validation errors");
+return;
+}
+
+try{
+
+const payload = {
+
+firstName,
+lastName,
+employeeId,
+designation:designation.value,
+collegeId:college.value,
+departmentId:department?.value || null,
+batchId:isAdvisor ? batch?.value || null : null
+
+};
+
+const response = await axiosInstance.post("/admin/authority",payload);
+
+const data = response.data;
+
+if(data?.status==="Bad Request" && data?.validationErrorInfo?.length>0){
+
+setToastType("error");
+setToastMsg(data.validationErrorInfo[0].message);
+return;
+
+}
+
+setToastType("success");
+setToastMsg("Authority created successfully");
+
+setFirstName("");
+setLastName("");
+setEmployeeId("");
+
+setDesignation(null);
+setCollege(null);
+setDepartment(null);
+setBatch(null);
+
+setIsAdvisor(false);
+
+setDepartmentOptions([]);
+setBatchOptions([]);
+
+}
+catch(error){
+
+console.error(error);
+
+if(error?.response?.data?.validationErrorInfo?.length>0){
+
+setToastMsg(error.response.data.validationErrorInfo[0].message);
+
+}
+else if(error?.response?.data?.message){
+
+setToastMsg(error.response.data.message);
+
+}
+else{
+
+setToastMsg("FAILED TO CREATE AUTHORITY");
+
+}
+
+setToastType("error");
+
+}
+
+};
+
+return(
+
+<>
+
+{toastMsg &&
+ReactDOM.createPortal(
+
+<div className="content-success-overlay">
+
+<Toast
+message={toastMsg}
+type={toastType}
+onClose={()=>setToastMsg("")}
+duration={3000}
+/>
+
+</div>,
+
+document.getElementById("content-overlay-root")
+
+)}
+
+<div className="w-100 min-vh-100 p-4">
+
+<div className="d-flex align-items-center justify-content-center">
+
+<div
+className="card shadow border-0 p-5"
+style={{maxWidth:"700px",width:"100%"}}
+>
+
+<h2 className="fw-bold text-center mb-4">Add Authority</h2>
+
+<form onSubmit={handleSubmit}>
+
+<div className="mb-4 text-start">
+<label className="form-label fw-semibold">First Name</label>
+<input
+className="form-control form-control-lg"
+value={firstName}
+onChange={(e)=>{
+setFirstName(e.target.value);
+handleValidation("firstName",e.target.value);
+}}
+/>
+{errors.firstName && (
+<small className="text-danger">{errors.firstName}</small>
+)}
+</div>
+
+<div className="mb-4 text-start">
+<label className="form-label fw-semibold">Last Name</label>
+<input
+className="form-control form-control-lg"
+value={lastName}
+onChange={(e)=>{
+setLastName(e.target.value);
+handleValidation("lastName",e.target.value);
+}}
+/>
+{errors.lastName && (
+<small className="text-danger">{errors.lastName}</small>
+)}
+</div>
+
+<div className="mb-4 text-start">
+<label className="form-label fw-semibold">Employee ID</label>
+<input
+className="form-control form-control-lg"
+value={employeeId}
+onChange={(e)=>{
+setEmployeeId(e.target.value);
+handleValidation("employeeId",e.target.value);
+}}
+/>
+{errors.employeeId && (
+<small className="text-danger">{errors.employeeId}</small>
+)}
+</div>
+
+<div className="mb-4 text-start">
+<label className="form-label fw-semibold">Designation</label>
+<Select
+options={designationOptions}
+value={designation}
+onChange={(v)=>{
+setDesignation(v);
+handleValidation("designation",v);
+}}
+isSearchable
+maxMenuHeight={160}
+/>
+</div>
+
+<div className="mb-4 text-start">
+<label className="form-label fw-semibold">College</label>
+<Select
+options={collegeOptions}
+value={college}
+onChange={handleCollegeChange}
+isSearchable
+maxMenuHeight={160}
+formatOptionLabel={(option)=>(
+<div className="d-flex justify-content-between">
+<span>{option.label}</span>
+<span className="text-muted">{option.code}</span>
+</div>
+)}
+/>
+</div>
+
+<div className="mb-4 text-start">
+<label className="form-label fw-semibold">Department</label>
+<Select
+options={departmentOptions}
+value={department}
+onChange={handleDepartmentChange}
+isSearchable
+maxMenuHeight={160}
+isDisabled={!college}
+/>
+</div>
+
+<div className="form-check mb-4 text-start">
+<input
+className="form-check-input"
+type="checkbox"
+checked={isAdvisor}
+disabled={!designation || !department}
+onChange={(e)=>{
+setIsAdvisor(e.target.checked);
+if(!e.target.checked){
+setBatch(null);
+}
+}}
+/>
+<label className="form-check-label fw-semibold">
+Faculty Advisor
+</label>
+</div>
+
+<div className="mb-4 text-start">
+<label className="form-label fw-semibold">Batch</label>
+<Select
+options={batchOptions}
+value={batch}
+onChange={setBatch}
+isSearchable
+maxMenuHeight={160}
+isDisabled={!isAdvisor}
+/>
+</div>
+
+<div className="d-flex gap-3 mt-4">
+
+<button type="submit" className="btn btn-dark w-50 py-2">
+Create
+</button>
+
+<button
+type="button"
+className="btn btn-outline-dark w-50 py-2"
+onClick={()=>navigate("/admin")}
+>
+Cancel
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</>
+
+);
+
 }

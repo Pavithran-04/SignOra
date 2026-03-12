@@ -397,7 +397,7 @@ export default function AddStudent() {
 
                 {errors.password && (
                   <small className="text-danger">{errors.password}</small>
-                )}reactjs/src/Pages/AddBatch.jsx
+                )}
 
                 {password && (
                   <div
