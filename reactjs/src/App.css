@@ -51,3 +51,11 @@
     transform: translate(-50%, 0);
   }
 }
+
+.login-submit-btn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+.login-submit-btn {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
