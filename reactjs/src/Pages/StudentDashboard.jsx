@@ -9,6 +9,7 @@ function StudentDashboard({ role }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const id = searchParams.get("id");
+  const userId = searchParams.get("userId") || id;
 
   const [showModal, setShowModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -26,7 +27,7 @@ function StudentDashboard({ role }) {
     setShowModal(true);
   };
 
-  // Fetch data function - can be called from anywhere
+  // Fetch data: use id for forms API, userId for getStudent API
   const fetchFormData = useCallback(async () => {
     if (!id || !role) return;
 
@@ -35,15 +36,11 @@ function StudentDashboard({ role }) {
         identifier: id,
         role: role,
       });
-
-      // Safe fallback
       setRequestData(response.data?.requestForms || []);
 
-      // After getRequestDetails, call getStudent API
-      const studentId = id;
-      if (studentId) {
+      if (userId) {
         try {
-          const studentResponse = await getStudent(id);
+          const studentResponse = await getStudent({ userId: userId });
           const studentData = studentResponse.data;
           if (studentData) {
             const fullName =
@@ -60,7 +57,7 @@ function StudentDashboard({ role }) {
     } catch (err) {
       console.error("Error fetching data:", err);
     }
-  }, [id, role]);
+  }, [id, role, userId]);
 
   useEffect(() => {
     if (!submitMessage) return;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getRequestForm, updateRequestStatus, getFormDetails, getAuthorityByUserId } from "../api/AuthorityService";
+import { getRequestForm, updateRequestStatus, getFormDetails, getAuthorityByUserId, getAuthorityDetails } from "../api/AuthorityService";
 
 
 const useAuthorityService = () => {
@@ -110,10 +110,17 @@ const useAuthorityService = () => {
       setIsLoading(true);
       setError("");
 
-      const userId = typeof data === 'object' ? data.userId : data;
-      const response = await getAuthorityByUserId(userId);
-
-      return response;
+      const id = typeof data === 'object' ? (data.authorityId ?? data.userId) : data;
+      try {
+        const response = await getAuthorityDetails(id);
+        return response;
+      } catch (adminErr) {
+        if (adminErr.response?.status === 403) {
+          const response = await getAuthorityByUserId(id);
+          return response;
+        }
+        throw adminErr;
+      }
     } catch (error) {
       let errorMessage = "Failed to fetch authority details. Please try again.";
       if (error.response?.data) {

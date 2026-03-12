@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import useLogin from "../hooks/useLogin";
 import { useAuthToken } from "../hooks/useAuthToken";
-import useStudentService from "../hooks/useStudentService";
 import loginImage from "../Image/loginImage.jpeg";
 import { useNavigate } from "react-router-dom";
 
@@ -15,7 +14,6 @@ const [loginError, setLoginError] = useState("");
 
 const { isLoading, errorMsg, login } = useLogin();
 const getAccessToken = useAuthToken();
-const { getRequestDetails, getStudent } = useStudentService();
 const navigator = useNavigate();
 
 const onSubmit = async () => {
@@ -109,44 +107,16 @@ if (errorMsg || loginError || !loginResponse) return;
 
     const role = loginResponse.role.toUpperCase();
 
+    const id = loginResponse.id;
+    const userId = loginResponse.userId ?? loginResponse.id;
     if (role === "STUDENT") {
-      try {
-        const formsResponse = await getRequestDetails({
-          identifier: loginResponse.id,
-          role: "STUDENT",
-        });
-
-        const studentId = formsResponse.data?.studentId;
-
-        if (studentId) {
-          const studentResponse = await getStudent({ studentId });
-          const studentData = studentResponse.data;
-
-          if (studentData) {
-            const studentInfo = {
-              name: `${studentData.firstName || ""} ${
-                studentData.lastName || ""
-              }`.trim(),
-              rollNo: studentData.rollNo || "",
-            };
-
-            localStorage.setItem(
-              "studentInfo",
-              JSON.stringify(studentInfo)
-            );
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching student info:", err);
-      }
-
-      navigator(`/student?id=${loginResponse.id}`);
+      navigator(`/student?id=${id}&userId=${userId}`);
     } else if (role === "FACULTY") {
-      navigator(`/faculty?id=${loginResponse.id}`);
+      navigator(`/faculty?id=${id}&userId=${userId}`);
     } else if (role === "HOD") {
-      navigator(`/hod?id=${loginResponse.id}`);
+      navigator(`/hod?id=${id}&userId=${userId}`);
     } else if (role === "PRINCIPAL") {
-      navigator(`/principal?id=${loginResponse.id}`);
+      navigator(`/principal?id=${id}&userId=${userId}`);
     } else if (role === "ADMIN") {
       navigator(`/admin`);
     }

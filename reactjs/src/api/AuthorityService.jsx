@@ -28,3 +28,8 @@ export const getAuthorityByUserId = async (userId) => {
   return response;
 };
 
+export const getAuthorityDetails = async (authorityId) => {
+  const response = await axiosInstance.get(`/admin/authority/${authorityId}`);
+  return response;
+};
+

@@ -43,7 +43,7 @@ public class SecurityConfiguration {
         securityPlan.cors(Customizer.withDefaults());
 
         securityPlan.authorizeHttpRequests(request -> request
-                .requestMatchers("/auth/token", "/admin/user/register", "/login", "/form").permitAll()
+                .requestMatchers("/auth/token", "/admin/user/register", "/login", "/form", "/students/user/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/request", "/certificate").hasRole("STUDENT")

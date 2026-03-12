@@ -114,18 +114,25 @@ function AuthorityDashboard({ role }) {
     }
 
     if (filterStatus === "APPROVED") {
-      // For FACULTY role, show MOVED_TO_HOD and MOVED_TO_PRINCIPAL in Approve tab
+      // For FACULTY: show requests they approved (forwarded or fully approved)
       if (role === "FACULTY") {
         return (
+          data.status === "APPROVED_BY_FACULTY" ||
           data.status === "MOVED_TO_HOD" ||
-          data.status === "MOVED_TO_PRINCIPAL"
+          data.status === "MOVED_TO_PRINCIPAL" ||
+          data.status === "APPROVED_BY_HOD" ||
+          data.status === "APPROVED_BY_PRINCIPAL"
         );
       }
-      // For HOD role, show MOVED_TO_PRINCIPAL in Approve tab
+      // For HOD: show requests they approved (forwarded or fully approved)
       if (role === "HOD") {
-        return data.status === "MOVED_TO_PRINCIPAL";
+        return (
+          data.status === "APPROVED_BY_HOD" ||
+          data.status === "MOVED_TO_PRINCIPAL" ||
+          data.status === "APPROVED_BY_PRINCIPAL"
+        );
       }
-      // For other roles (PRINCIPAL), show approved statuses
+      // For PRINCIPAL: show all approved statuses
       return (
         data.status?.startsWith("APPROVED") ||
         data.status === "APPROVED_BY_FACULTY" ||
@@ -267,12 +274,7 @@ function AuthorityDashboard({ role }) {
                   <th scope="col">S.no</th>
                   <th scope="col">Request Title</th>
                   <th scope="col">Status</th>
-                  {filterStatus === "PENDING" && (
-                    <>
-                      <th scope="col"></th>
-                      <th scope="col"></th>
-                    </>
-                  )}
+                  {filterStatus === "PENDING" && <th scope="col">Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -295,34 +297,30 @@ function AuthorityDashboard({ role }) {
                         </span>
                       </td>
                       {filterStatus === "PENDING" && (
-                        <>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-success"
-                              onClick={() => handleStatusUpdate(data.id, true)}
-                              disabled={isLoading || !canTakeAction(data.status)}
-                              title="Approve"
-                            >
-                              <i className="bi bi-check-circle"></i>
-                            </button>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-danger"
-                              onClick={() => handleStatusUpdate(data.id, false)}
-                              disabled={isLoading || !canTakeAction(data.status)}
-                              title="Reject"
-                            >
-                              <i className="bi bi-x-circle"></i>
-                            </button>
-                          </td>
-                        </>
+                        <td className="text-nowrap">
+                          <button
+                            className="btn btn-sm btn-success me-1"
+                            onClick={() => handleStatusUpdate(data.id, true)}
+                            disabled={isLoading || !canTakeAction(data.status)}
+                            title="Approve"
+                          >
+                            <i className="bi bi-check-circle"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleStatusUpdate(data.id, false)}
+                            disabled={isLoading || !canTakeAction(data.status)}
+                            title="Reject"
+                          >
+                            <i className="bi bi-x-circle"></i>
+                          </button>
+                        </td>
                       )}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={filterStatus === "PENDING" ? 5 : 3} className="text-center py-5 text-muted">
+                    <td colSpan={filterStatus === "PENDING" ? 4 : 3} className="text-center py-5 text-muted">
                       <i className="bi bi-inbox fs-1 d-block mb-2"></i>
                       No Records Found
                     </td>

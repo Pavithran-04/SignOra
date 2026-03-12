@@ -1,7 +1,7 @@
 import { submitForm } from "../api/StudentService";
 import { useState } from "react";
 import { getRequestForm } from "../api/StudentService";
-import { getFormDetails, getStudentDetails, uploadCertificateLink } from "../api/StudentService";
+import { getFormDetails, getStudentDetails, getStudentByUserId, uploadCertificateLink } from "../api/StudentService";
 // import {submitForm} from "../api/StudentService";
 const useStudentService = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -61,8 +61,8 @@ const useStudentService = () => {
       setIsLoading(true);
       setError("");
 
-      const studentId = typeof data === 'object' ? data.studentId : data;
-      const response = await getStudentDetails(studentId);
+      const userId = typeof data === 'object' ? (data.userId ?? data.studentId) : data;
+      const response = await getStudentByUserId(userId);
 
       return response;
     } catch (error) {
