@@ -42,13 +42,14 @@ public class SecurityConfiguration {
         securityPlan.csrf(AbstractHttpConfigurer::disable);
         securityPlan.cors(Customizer.withDefaults());
 
-        securityPlan.authorizeHttpRequests(request -> request
-                .requestMatchers("/auth/token", "/admin/user/register", "/login", "/form", "/students/user/**").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/request", "/certificate").hasRole("STUDENT")
-                .anyRequest().authenticated()
-        );
+//        securityPlan.authorizeHttpRequests(request -> request
+//                .requestMatchers("/auth/token", "/admin/user/register", "/login", "/form", "/students/user/**").permitAll()
+//                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+//                .requestMatchers("/admin/**").hasRole("ADMIN")
+//                .requestMatchers("/admin/students").hasAnyRole("STUDENT", "ADMIN")
+//                .requestMatchers("/request", "/certificate").hasRole("STUDENT")
+//                .anyRequest().authenticated()
+//        );
 
         securityPlan.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

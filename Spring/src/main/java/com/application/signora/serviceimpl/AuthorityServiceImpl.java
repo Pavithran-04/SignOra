@@ -16,6 +16,7 @@ import com.application.signora.service.AuthorityService;
 import com.application.signora.utility.UserServiceUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.engine.jdbc.batch.spi.Batch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,30 +68,19 @@ public class AuthorityServiceImpl implements AuthorityService {
 
         User savedUser = userRepository.save(
                 User.builder()
-                        .role(request.getRole())
                         .username(request.getUsername())
                         .password(passwordEncoder.encode(request.getPassword()))
                         .build()
         );
 
-        if(authorityRepository.existsByEmpId(request.getIdentifier())) {
-            Authority staff = authorityRepository.findByEmpId(request.getIdentifier())
-                    .orElseThrow(() -> new RuntimeException("Invalid employee id"));
-            if(!staff.getDesignation().equals(request.getRole())) {
-                throw new RuntimeException(request.getRole() + " is not match for this employee");
-            }
-            if(!Objects.isNull(staff.getUser()))
-                throw new RuntimeException(request.getIdentifier() + " already has been registered");
-            staff.setUser(savedUser);
-            authorityRepository.save(staff);
-        } else if (studentRepository.existsByRollNo(request.getIdentifier())) {
-            Student student = studentRepository.findByRollNo(request.getIdentifier())
-                    .orElseThrow(() -> new RuntimeException("Invalid roll number"));
-            if(!Objects.isNull(student.getUser()))
-                throw new RuntimeException(request.getIdentifier() + " already has been registered");
-            student.setUser(savedUser);
-            studentRepository.save(student);
-        }
+        Authority staff = authorityRepository.findByEmpId(request.getIdentifier())
+                .orElseThrow(() -> new RuntimeException("Invalid employee id"));
+        if(!Objects.isNull(staff.getUser()))
+            throw new RuntimeException(request.getIdentifier() + " already has been registered");
+        savedUser.setRole(staff.getDesignation());
+
+        staff.setUser(savedUser);
+        authorityRepository.save(staff);
 
         return RegisterUserResponse.builder()
                 .message("User has been successfully registered")
@@ -164,26 +154,33 @@ public class AuthorityServiceImpl implements AuthorityService {
             throw new RuntimeException("Employee ID already exists");
         }
 
-        Department department = departmentRepository.findById(request.getDepartmentId()).orElseThrow(
-                () -> {
-                    log.error("Department not found with id: {}", request.getDepartmentId());
-                    return new RuntimeException("Department not found");
-                });
-
-        College college = collegeRepository.findById(request.getCollegeId())
-                .orElseThrow(() -> {
-                    log.error("College not found with id: {}", request.getCollegeId());
-                    return new RuntimeException("College not found");
-                });
-
-        Authority authority = authorityRepository.save(Authority.builder()
+        Authority authority = Authority.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .empId(request.getEmployeeId())
                 .designation(request.getDesignation())
-                .department(department)
-                .build());
+                .build();
 
+        Department department = new Department();
+        if(Objects.nonNull(request.getDepartmentId())) {
+            department = departmentRepository.findById(request.getDepartmentId()).orElseThrow(
+                    () -> {
+                        log.error("Department not found with id: {}", request.getDepartmentId());
+                        return new RuntimeException("Department not found");
+                    });
+            authority.setDepartment(department);
+        }
+
+        College college = new College();
+        if(Objects.nonNull(request.getCollegeId())) {
+            college = collegeRepository.findById(request.getCollegeId())
+                    .orElseThrow(() -> {
+                        log.error("College not found with id: {}", request.getCollegeId());
+                        return new RuntimeException("College not found");
+                    });
+        }
+
+        authority = authorityRepository.save(authority);
         log.info("Authority created successfully with id: {}", authority.getId());
 
         handleDesignationLogic(request, authority, department, college);
@@ -279,32 +276,48 @@ public class AuthorityServiceImpl implements AuthorityService {
     }
 
     private void handleFaculty(CreateAuthorityRequest request, Authority authority) {
-        assignBatchIfPresent(request.getBatchId(), authority);
+        assignBatchIfNotAssigned(request.getBatchId(), authority);
     }
 
     private void handleHod(CreateAuthorityRequest request, Authority authority, Department department) {
-
-        department.setHod(authority);
-        departmentRepository.save(department);
-
-        assignBatchIfPresent(request.getBatchId(), authority);
+        if(Objects.isNull(department.getHod())) {
+            department.setHod(authority);
+            departmentRepository.save(department);
+            assignBatchIfNotAssigned(request.getBatchId(), authority);
+        } else {
+            throw new RuntimeException("This department is already assigned to some other HOD");
+        }
     }
 
     private void handlePrincipal(CreateAuthorityRequest request, Authority authority, Department department, College college) {
-        college.setPrincipal(authority);
-        collegeRepository.save(college);
-        if (Objects.nonNull(request.getDepartmentId())) {
-            department.setHod(authority);
-            departmentRepository.save(department);
+
+        if(Objects.isNull(college.getPrincipal())) {
+            college.setPrincipal(authority);
+            collegeRepository.save(college);
+        } else {
+            throw new RuntimeException("This college is already assigned to some other Principal");
         }
-        assignBatchIfPresent(request.getBatchId(), authority);
+
+        if (Objects.nonNull(request.getDepartmentId())) {
+            if(Objects.isNull(department.getHod())) {
+                department.setHod(authority);
+                departmentRepository.save(department);
+                assignBatchIfNotAssigned(request.getBatchId(), authority);
+            } else {
+                throw new RuntimeException("This batch is already assigned to some other faculty");
+            }
+        }
     }
 
-    private void assignBatchIfPresent(Long batchId, Authority authority) {
-        if (Objects.nonNull(batchId)) {
-            BatchDetails batch = batchDetailsRepository.findById(batchId).orElseThrow(() -> new RuntimeException("Batch not found"));
-            batch.setFaculty(authority);
-            batchDetailsRepository.save(batch);
+    private void assignBatchIfNotAssigned(Long batchId, Authority authority) {
+        if(Objects.nonNull(batchId)) {
+            BatchDetails batchDetails = batchDetailsRepository.findById(batchId).get();
+            if(Objects.isNull(batchDetails.getFaculty())) {
+                batchDetails.setFaculty(authority);
+                batchDetailsRepository.save(batchDetails);
+            } else {
+                throw new RuntimeException("This batch is already assigned to some other faculty");
+            }
         }
     }
 }
