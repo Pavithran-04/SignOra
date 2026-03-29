@@ -99,6 +99,8 @@ public class FormServiceImpl implements FormService {
                         .requiredHodApproval(p.getRequiredHodApproval())
                         .requirePrincipalApproval(p.getRequiredPrincipalApproval())
                         .certificateLink(p.getCertificateLink())
+                        .studentName(p.getFirstName() + " " + p.getLastName())
+                        .rollNo(p.getRollNo())
                         .build())
                 .toList();
 
@@ -121,6 +123,8 @@ public class FormServiceImpl implements FormService {
                         .requiredHodApproval(p.getRequiredHodApproval())
                         .requirePrincipalApproval(p.getRequiredPrincipalApproval())
                         .certificateLink(p.getCertificateLink())
+                        .studentName(p.getFirstName() + " " + p.getLastName())
+                        .rollNo(p.getRollNo())
                         .status(p.getStatus())
                         .build())
                 .toList();
@@ -144,6 +148,8 @@ public class FormServiceImpl implements FormService {
                         .requiredHodApproval(p.getRequiredHodApproval())
                         .requirePrincipalApproval(p.getRequiredPrincipalApproval())
                         .certificateLink(p.getCertificateLink())
+                        .studentName(p.getFirstName() + " " + p.getLastName())
+                        .rollNo(p.getRollNo())
                         .status(p.getStatus())
                         .build())
                 .toList();

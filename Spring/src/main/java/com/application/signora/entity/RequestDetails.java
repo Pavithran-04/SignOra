@@ -23,6 +23,7 @@ public class RequestDetails extends BaseEntity {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String requestBody;
 
     private String requestTitle;

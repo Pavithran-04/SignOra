@@ -24,7 +24,10 @@ public interface RequestDetailsRepository extends JpaRepository<RequestDetails, 
             RD.STATUS as status,
             AI.NEED_HOD_SIGN as requiredHodApproval,
             AI.NEED_PRINCIPAL_SIGN as requiredPrincipalApproval,
-            CI.LINK as certificateLink
+            CI.LINK as certificateLink,
+            STUD.FIRST_NAME as firstName,
+            STUD.LAST_NAME as lastName,
+            STUD.ROLL_NO as rollNo
         FROM AUTHORITY AUTH
         JOIN BATCH_DETAILS BD ON AUTH.ID = BD.FACULTY_ID
         JOIN STUDENT STUD ON STUD.BATCH_ID = BD.ID
@@ -43,7 +46,10 @@ public interface RequestDetailsRepository extends JpaRepository<RequestDetails, 
             RD.STATUS as status,
             AI.NEED_HOD_SIGN as requiredHodApproval,
             AI.NEED_PRINCIPAL_SIGN as requiredPrincipalApproval,
-            CI.LINK as certificateLink
+            CI.LINK as certificateLink,
+            STUD.FIRST_NAME as firstName,
+            STUD.LAST_NAME as lastName,
+            STUD.ROLL_NO as rollNo
         FROM AUTHORITY AUTH
         JOIN DEPARTMENT DEPT ON DEPT.HOD_ID = AUTH.ID
         JOIN BATCH_DETAILS BD ON BD.DEPARTMENT_ID = DEPT.ID
@@ -68,7 +74,10 @@ public interface RequestDetailsRepository extends JpaRepository<RequestDetails, 
             RD.STATUS as status,
             AI.NEED_HOD_SIGN as requiredHodApproval,
             AI.NEED_PRINCIPAL_SIGN as requiredPrincipalApproval,
-            CI.LINK as certificateLink
+            CI.LINK as certificateLink,
+            STUD.FIRST_NAME as firstName,
+            STUD.LAST_NAME as lastName,
+            STUD.ROLL_NO as rollNo
         FROM AUTHORITY AUTH
         JOIN COLLEGE COL ON COL.PRINCIPAL_ID = AUTH.ID
         JOIN DEPARTMENT DEPT ON DEPT.COLLEGE_ID = COL.ID

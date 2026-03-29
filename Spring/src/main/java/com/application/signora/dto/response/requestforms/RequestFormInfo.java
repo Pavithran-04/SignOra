@@ -29,4 +29,8 @@ public class RequestFormInfo {
 
     private String certificateLink;
 
+    private String studentName;
+
+    private String rollNo;
+
 }

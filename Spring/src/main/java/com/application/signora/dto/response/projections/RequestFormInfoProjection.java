@@ -17,4 +17,10 @@ public interface RequestFormInfoProjection {
     Boolean getRequiredPrincipalApproval();
 
     String getCertificateLink();
+
+    String getFirstName();
+
+    String getLastName();
+
+    String getRollNo();
 }
