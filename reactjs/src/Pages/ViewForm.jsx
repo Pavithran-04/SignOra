@@ -7,7 +7,7 @@ function ViewForm() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const formId = searchParams.get("formId");
-  
+
   const [formData, setFormData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ function ViewForm() {
   useEffect(() => {
     const fetchFormData = async () => {
       if (!formId) return;
-      
+
       try {
         setIsLoading(true);
         setError(null);
@@ -102,6 +102,11 @@ function ViewForm() {
     return "badge bg-secondary";
   };
 
+  const formatStatus = (status) => {
+    if (!status) return "";
+    return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
   return (
     <div className="w-100 min-vh-100 p-4">
       <div className="d-flex align-items-center justify-content-center">
@@ -114,10 +119,45 @@ function ViewForm() {
             View request form information and status.
           </p>
 
+          {formData.studentName?.trim() && (
+            <div className="mb-4 text-start">
+              <label className="form-label fw-semibold">Student name</label>
+              <div
+                className="form-control form-control-lg"
+                style={{
+                  backgroundColor: "#f8f9fa",
+                  border: "1px solid #dee2e6",
+                }}
+              >
+                {formData.studentName.trim()}
+              </div>
+            </div>
+          )}
+          {formData.rollNo?.trim() && (
+            <div className="mb-4 text-start">
+              <label className="form-label fw-semibold">Roll number</label>
+              <div
+                className="form-control form-control-lg"
+                style={{
+                  backgroundColor: "#f8f9fa",
+                  border: "1px solid #dee2e6",
+                }}
+              >
+                {formData.rollNo.trim()}
+              </div>
+            </div>
+          )}
+
           {/* Request Title */}
           <div className="mb-4 text-start">
             <label className="form-label fw-semibold">Request Title</label>
-            <div className="form-control form-control-lg" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+            <div
+              className="form-control form-control-lg"
+              style={{
+                backgroundColor: "#f8f9fa",
+                border: "1px solid #dee2e6",
+              }}
+            >
               {formData.requestTitle || "N/A"}
             </div>
           </div>
@@ -126,13 +166,13 @@ function ViewForm() {
           {formData.requestBody && (
             <div className="mb-4 text-start">
               <label className="form-label fw-semibold">Request Body</label>
-              <div 
-                className="form-control form-control-lg" 
-                style={{ 
-                  backgroundColor: "#f8f9fa", 
+              <div
+                className="form-control form-control-lg"
+                style={{
+                  backgroundColor: "#f8f9fa",
                   border: "1px solid #dee2e6",
                   minHeight: "120px",
-                  whiteSpace: "pre-wrap"
+                  whiteSpace: "pre-wrap",
                 }}
               >
                 {formData.requestBody}
@@ -144,9 +184,15 @@ function ViewForm() {
           {formData.status && (
             <div className="mb-4 text-start">
               <label className="form-label fw-semibold">Status</label>
-              <div className="form-control form-control-lg" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+              <div
+                className="form-control form-control-lg"
+                style={{
+                  backgroundColor: "#f8f9fa",
+                  border: "1px solid #dee2e6",
+                }}
+              >
                 <span className={getStatusBadgeClass(formData.status)}>
-                  {formData.status}
+                  {formatStatus(formData.status)}
                 </span>
               </div>
             </div>
