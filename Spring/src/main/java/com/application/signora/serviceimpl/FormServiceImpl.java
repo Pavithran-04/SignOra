@@ -73,6 +73,8 @@ public class FormServiceImpl implements FormService {
                 .requiredHodApproval(requestDetails.getApprovalInfo().getNeedHodSign())
                 .requirePrincipalApproval(requestDetails.getApprovalInfo().getNeedPrincipalSign())
                 .status(requestDetails.getStatus())
+                .studentName(requestDetails.getStudent().getFirstName() + " " + requestDetails.getStudent().getLastName())
+                .rollNo(requestDetails.getStudent().getRollNo())
                 .build();
     }
 
