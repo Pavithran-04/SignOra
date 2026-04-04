@@ -3,18 +3,17 @@ import useAuthorityService from "../hooks/useAuthorityService";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
-
-
 function AuthorityDashboard({ role }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const id = searchParams.get("id");
+  const id = searchParams.get("userId");
 
   const [requestData, setRequestData] = useState([]);
   const [filterStatus, setFilterStatus] = useState("PENDING");
   const [authorityInfo, setAuthorityInfo] = useState({ name: "", empId: "" });
 
-  const { isLoading, error, getRequestDetails, updateStatus, getAuthority } = useAuthorityService();
+  const { isLoading, error, getRequestDetails, updateStatus, getAuthority } =
+    useAuthorityService();
 
   // Fetch data function - can be called from anywhere
   const fetchFormData = useCallback(async () => {
@@ -51,7 +50,7 @@ function AuthorityDashboard({ role }) {
           JSON.stringify({
             name: authorityData.fullName || "",
             empId: authorityData.employeeId || "",
-          })
+          }),
         );
       }
     } catch (err) {
@@ -170,7 +169,9 @@ function AuthorityDashboard({ role }) {
   // Format status to remove underscores
   const formatStatus = (status) => {
     if (!status) return "";
-    return status.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+    return status
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
   // Check if form can be approved/rejected by current authority
@@ -317,7 +318,10 @@ function AuthorityDashboard({ role }) {
                             className="text-primary text-decoration-none"
                             title="View certificate"
                           >
-                            <i className="bi bi-award-fill fs-5" aria-label="Certificate" />
+                            <i
+                              className="bi bi-award-fill fs-5"
+                              aria-label="Certificate"
+                            />
                           </a>
                         ) : (
                           <span className="text-muted">—</span>
@@ -347,7 +351,10 @@ function AuthorityDashboard({ role }) {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={filterStatus === "PENDING" ? 5 : 4} className="text-center py-5 text-muted">
+                    <td
+                      colSpan={filterStatus === "PENDING" ? 5 : 4}
+                      className="text-center py-5 text-muted"
+                    >
                       <i className="bi bi-inbox fs-1 d-block mb-2"></i>
                       No Records Found
                     </td>
